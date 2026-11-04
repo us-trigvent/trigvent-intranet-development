@@ -74,7 +74,7 @@ export default function DataTable({
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search size={17} className="text-slate-400" />
+                    <Search size={17} className="text-neutral-400" />
                   </InputAdornment>
                 ),
               },
@@ -86,8 +86,8 @@ export default function DataTable({
 
       {(title || subtitle) && (
         <div className="mb-4">
-          {title && <h2 className="text-base font-semibold text-[#203D61]">{title}</h2>}
-          {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+          {title && <h2 className="text-base font-semibold text-brand-navy">{title}</h2>}
+          {subtitle && <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>}
         </div>
       )}
 
@@ -205,7 +205,7 @@ export default function DataTable({
         )}
       </TableContainer>
 
-      <div className="mt-4 flex flex-col gap-3 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 flex flex-col gap-3 text-sm text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
         <span>
           {filteredRows.length === 0
             ? "Showing 0 records"
@@ -216,17 +216,17 @@ export default function DataTable({
             type="button"
             disabled={currentPage === 1}
             onClick={() => setPage((current) => Math.max(1, current - 1))}
-            className="rounded-lg border border-slate-200 p-2 disabled:opacity-40"
+            className="rounded-lg border border-border-default p-2 disabled:opacity-40"
             aria-label="Previous page"
           >
             <ChevronLeft size={16} />
           </button>
-          <span className="min-w-20 text-center font-medium text-[#203D61]">Page {currentPage} of {pageCount}</span>
+          <span className="min-w-20 text-center font-medium text-brand-navy">Page {currentPage} of {pageCount}</span>
           <button
             type="button"
             disabled={currentPage === pageCount}
             onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
-            className="rounded-lg border border-slate-200 p-2 disabled:opacity-40"
+            className="rounded-lg border border-border-default p-2 disabled:opacity-40"
             aria-label="Next page"
           >
             <ChevronRight size={16} />

@@ -31,18 +31,18 @@ const initialForm = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-[#203D61] outline-none transition placeholder:text-slate-400 focus:border-[#0D9999] focus:ring-4 focus:ring-[#0D9999]/10 disabled:cursor-not-allowed disabled:bg-slate-100";
+  "w-full rounded-xl border border-border-default bg-white px-3.5 py-2.5 text-sm text-brand-navy outline-none transition placeholder:text-neutral-400 focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10 disabled:cursor-not-allowed disabled:bg-surface-muted";
 
 function FormField({ label, required, error, children }) {
   return (
     <div className="min-w-0">
-      <label className="mb-2 block text-sm font-medium text-slate-700">
+      <label className="mb-2 block text-sm font-medium text-text-secondary">
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-danger">*</span>}
       </label>
       {children}
       {error && (
-        <p className="mt-1 text-xs text-red-500">{error}</p>
+        <p className="mt-1 text-xs text-danger">{error}</p>
       )}
     </div>
   );
@@ -134,31 +134,31 @@ export default function AddCompOffCredit({
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
+    <div className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
       <header className="mb-6">
-        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-neutral-500">
           <span>Trigvent</span>
-          <span className="text-slate-300">/</span>
+          <span className="text-neutral-300">/</span>
           <span>Leave Management</span>
-          <span className="text-slate-300">/</span>
-          <span className="text-[#0D9999]">Add Comp Off Credit</span>
+          <span className="text-neutral-300">/</span>
+          <span className="text-brand-teal">Add Comp Off Credit</span>
         </div>
 
-        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-[#203D61] sm:text-3xl">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]">
+        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-teal-soft text-brand-teal">
             <CalendarPlus size={23} />
           </span>
           Add Comp Off Credit
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-neutral-500">
           Credit comp off for employees who worked on non-working days.
         </p>
       </header>
 
-      <main className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 sm:px-7">
-          <h2 className="text-base font-semibold text-[#203D61]">Comp Off Details</h2>
-          <p className="mt-1 text-sm text-slate-500">Enter the employee and work-day information.</p>
+      <main className="overflow-hidden rounded-2xl border border-border-default/80 bg-white shadow-sm">
+        <div className="border-b border-border-default bg-surface-subtle/70 px-5 py-4 sm:px-7">
+          <h2 className="text-base font-semibold text-brand-navy">Comp Off Details</h2>
+          <p className="mt-1 text-sm text-neutral-500">Enter the employee and work-day information.</p>
         </div>
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 p-5 sm:p-6 lg:grid-cols-2 lg:p-7">
@@ -190,7 +190,7 @@ export default function AddCompOffCredit({
                 type="date"
                 value={form.workDate}
                 onChange={(e) => updateField("workDate", e.target.value)}
-                className={`${inputClass} bg-slate-100`}
+                className={`${inputClass} bg-surface-muted`}
               />
             </FormField>
 
@@ -218,7 +218,7 @@ export default function AddCompOffCredit({
                 type="text"
                 readOnly
                 value={creditDays.toFixed(1)}
-                className={`${inputClass} cursor-not-allowed bg-slate-100`}
+                className={`${inputClass} cursor-not-allowed bg-surface-muted`}
               />
             </FormField>
 
@@ -242,18 +242,18 @@ export default function AddCompOffCredit({
           {message && (
             <p
               role="status"
-              className="mx-5 mt-5 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-800 sm:mx-7"
+              className="mx-5 mt-5 rounded-xl border border-brand-teal-soft bg-brand-teal-soft px-4 py-3 text-sm text-brand-teal-dark sm:mx-7"
             >
               {message}
             </p>
           )}
 
-          <div className="mt-0 flex justify-end gap-3 border-t border-slate-100 px-5 py-4 sm:px-7">
+          <div className="mt-0 flex justify-end gap-3 border-t border-border-light px-5 py-4 sm:px-7">
             <button
               type="button"
               onClick={handleCancel}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-default px-5 py-3 text-sm font-semibold text-neutral-600 transition hover:bg-surface-subtle disabled:opacity-60"
             >
               <X size={17} />
               Cancel
@@ -262,7 +262,7 @@ export default function AddCompOffCredit({
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0D9999] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#087F80] disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-teal px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-teal-dark disabled:opacity-60"
             >
               <Send size={17} />
               {loading ? "Submitting..." : "Add Comp Off Credit"}

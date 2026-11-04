@@ -79,7 +79,7 @@ const holidays = [
     dayNumber: "13",
     description:
       "Celebrating warmth, harvest and new beginnings.",
-    theme: "from-[#6B210D] via-[#B94B18] to-[#F5A623]",
+    theme: "from-orange-dark via-orange-dark to-warning",
   },
   {
     name: "Republic Day",
@@ -89,7 +89,7 @@ const holidays = [
     dayNumber: "26",
     description:
       "Honouring the spirit and values of our nation.",
-    theme: "from-[#164E63] via-[#0F766E] to-[#D97706]",
+    theme: "from-cyan-dark via-brand-teal-dark to-warning",
   },
   {
     name: "Holi",
@@ -99,7 +99,7 @@ const holidays = [
     dayNumber: "04",
     description:
       "A joyful celebration of colour and togetherness.",
-    theme: "from-[#581C87] via-[#9333EA] to-[#DB2777]",
+    theme: "from-violet-dark via-violet to-rose",
   },
 ];
 
@@ -112,21 +112,21 @@ function EmptyState({ icon: Icon, title, description }) {
     <div
       className="flex min-h-[112px] flex-col items-center
       justify-center rounded-xl border border-dashed
-      border-slate-200 bg-slate-50/70 px-4 py-5 text-center"
+      border-border-default bg-surface-subtle/70 px-4 py-5 text-center"
     >
       <div
         className="mb-3 flex h-10 w-10 items-center
-        justify-center rounded-full bg-white text-slate-400
-        shadow-sm ring-1 ring-slate-100"
+        justify-center rounded-full bg-white text-neutral-400
+        shadow-sm ring-1 ring-border-light"
       >
         <Icon size={19} strokeWidth={1.7} />
       </div>
 
-      <p className="text-sm font-medium text-slate-700">
+      <p className="text-sm font-medium text-text-secondary">
         {title}
       </p>
 
-      <p className="mt-1 text-xs leading-5 text-slate-500">
+      <p className="mt-1 text-xs leading-5 text-neutral-500">
         {description}
       </p>
     </div>
@@ -161,23 +161,23 @@ function LeaveList({ leaves }) {
             <div
               className="flex h-11 w-11 shrink-0
               items-center justify-center rounded-full
-              bg-[#E8F7F6] text-sm font-semibold
-              text-[#087F80]"
+              bg-brand-teal-soft text-sm font-semibold
+              text-brand-teal-dark"
             >
               {leave.initials ||
                 leave.name.slice(0, 2).toUpperCase()}
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-slate-800">
+              <p className="text-sm font-semibold text-text-strong">
                 {leave.name}
               </p>
 
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-neutral-500">
                 {leave.department}
               </p>
 
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-neutral-500">
                 {leave.startDate === leave.endDate
                   ? leave.startDate
                   : `${leave.startDate} – ${leave.endDate}`}
@@ -187,8 +187,8 @@ function LeaveList({ leaves }) {
 
           <span
             className="flex w-fit items-center gap-2
-            rounded-lg bg-amber-50 px-3 py-2
-            text-xs font-medium text-amber-700"
+            rounded-lg bg-warning-soft px-3 py-2
+            text-xs font-medium text-warning-dark"
           >
             <Clock3 size={14} />
             {leave.duration}
@@ -223,9 +223,9 @@ function HolidayCalendar() {
       icon={Palmtree}
       action={
         <span
-          className="rounded-lg border border-slate-200
-          bg-slate-50 px-3 py-1.5 text-xs font-semibold
-          text-slate-600"
+          className="rounded-lg border border-border-default
+          bg-surface-subtle px-3 py-1.5 text-xs font-semibold
+          text-neutral-600"
         >
           2026
         </span>
@@ -349,14 +349,14 @@ function HolidayCalendar() {
               aria-label={`Show ${item.name}`}
               className={`h-1.5 rounded-full transition-all ${
                 index === holidayIndex
-                  ? "w-7 bg-[#0D9999]"
-                  : "w-1.5 bg-slate-200 hover:bg-slate-400"
+                  ? "w-7 bg-brand-teal"
+                  : "w-1.5 bg-neutral-200 hover:bg-neutral-400"
               }`}
             />
           ))}
         </div>
 
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-neutral-400">
           {holidayIndex + 1} of {holidays.length} holidays
         </p>
       </div>
@@ -371,7 +371,7 @@ function HolidayCalendar() {
 export default function Dashboard() {
   return (
     <div
-      className="min-h-screen bg-[#F5F8FC]
+      className="min-h-screen bg-page
       px-4 pb-8 pt-20 sm:px-6 sm:pt-20
       lg:px-8 lg:pt-8"
     >
@@ -383,37 +383,37 @@ export default function Dashboard() {
         <div>
           <div
             className="mb-2 flex items-center gap-2
-            text-xs font-medium text-slate-500"
+            text-xs font-medium text-neutral-500"
           >
             <span>Trigvent</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-[#0D9999]">Dashboard</span>
+            <span className="text-neutral-300">/</span>
+            <span className="text-brand-teal">Dashboard</span>
           </div>
 
           <h1
             className="text-2xl font-semibold
-            tracking-tight text-[#172B45] sm:text-3xl"
+            tracking-tight text-navy-dark sm:text-3xl"
           >
             Good day!{" "}
-            <span className="text-[#0D9999]">
+            <span className="text-brand-teal">
               Welcome back.
             </span>
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-neutral-500">
             Here's your company activity and upcoming celebrations.
           </p>
         </div>
 
         <div
           className="flex w-fit items-center gap-3
-          rounded-xl border border-slate-200
+          rounded-xl border border-border-default
           bg-white px-4 py-3 shadow-sm"
         >
           <div
             className="flex h-9 w-9 items-center
-            justify-center rounded-lg bg-[#E8F7F6]
-            text-[#0D9999]"
+            justify-center rounded-lg bg-brand-teal-soft
+            text-brand-teal"
           >
             <CalendarDays size={19} />
           </div>
@@ -421,12 +421,12 @@ export default function Dashboard() {
           <div>
             <p
               className="text-[11px] font-medium
-              uppercase tracking-wider text-slate-400"
+              uppercase tracking-wider text-neutral-400"
             >
               Current month
             </p>
 
-            <p className="mt-0.5 text-sm font-semibold text-slate-800">
+            <p className="mt-0.5 text-sm font-semibold text-text-strong">
               October 2026
             </p>
           </div>
@@ -468,9 +468,9 @@ export default function Dashboard() {
             icon={CalendarClock}
             action={
               <span
-                className="rounded-full bg-[#E8F7F6]
+                className="rounded-full bg-brand-teal-soft
                 px-2.5 py-1 text-xs font-semibold
-                text-[#087F80]"
+                text-brand-teal-dark"
               >
                 {upcomingLeaves.length} scheduled
               </span>
@@ -523,7 +523,7 @@ export default function Dashboard() {
           {/* Company Information */}
           <div
             className="relative overflow-hidden
-            rounded-2xl bg-[#203D61] p-6 text-white"
+            rounded-2xl bg-brand-navy p-6 text-white"
           >
             <div
               className="absolute -right-8 -top-8
@@ -544,7 +544,7 @@ export default function Dashboard() {
                   Your workplace at a glance
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-slate-300">
+                <p className="mt-2 text-sm leading-6 text-neutral-300">
                   Keep up with team availability, company
                   holidays, and important employee milestones
                   from one place.
@@ -566,13 +566,13 @@ export default function Dashboard() {
       {/* Footer */}
       <footer
         className="mt-8 flex flex-col items-center
-        justify-between gap-2 border-t border-slate-200
-        pt-5 text-xs text-slate-400 sm:flex-row"
+        justify-between gap-2 border-t border-border-default
+        pt-5 text-xs text-neutral-400 sm:flex-row"
       >
         <span>© 2026 Trigvent Solutions</span>
 
         <span className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#0D9999]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-teal" />
           Internal Employee Portal
         </span>
       </footer>

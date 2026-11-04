@@ -7,11 +7,11 @@ import {
 } from "lucide-react";
 
 const avatarColors = [
-  "bg-teal-100 text-teal-700",
-  "bg-blue-100 text-blue-700",
-  "bg-violet-100 text-violet-700",
-  "bg-amber-100 text-amber-700",
-  "bg-rose-100 text-rose-700",
+  "bg-brand-teal-light-soft text-brand-teal-dark",
+  "bg-info-soft text-info-dark",
+  "bg-violet-soft text-violet-dark",
+  "bg-warning-soft text-warning-dark",
+  "bg-danger-soft text-danger-dark",
 ];
 
 export default function EmployeeCard({
@@ -42,14 +42,14 @@ export default function EmployeeCard({
   return (
     <article
       className="group overflow-hidden rounded-2xl
-      border border-slate-200/80 bg-white
+      border border-border-default/80 bg-white
       shadow-sm transition-all duration-200
-      hover:-translate-y-1 hover:border-teal-200
+      hover:-translate-y-1 hover:border-brand-teal-soft
       hover:shadow-lg"
     >
       {/* Card accent */}
       <div className="h-1.5 bg-gradient-to-r
-        from-[#203D61] via-[#0D9999] to-[#54C8BD]"
+        from-brand-navy via-brand-teal to-brand-teal-light"
       />
 
       <div className="p-5">
@@ -60,7 +60,7 @@ export default function EmployeeCard({
               src={avatar}
               alt={name}
               className="h-14 w-14 shrink-0 rounded-2xl
-              border border-slate-100 object-cover"
+              border border-border-light object-cover"
             />
           ) : (
             <div
@@ -75,7 +75,7 @@ export default function EmployeeCard({
           <div className="min-w-0 flex-1 pt-0.5">
             <h3
               className="truncate text-base font-semibold
-              tracking-tight text-[#203D61]"
+              tracking-tight text-brand-navy"
               title={name}
             >
               {name}
@@ -83,7 +83,7 @@ export default function EmployeeCard({
 
             <p
               className="mt-1 line-clamp-2 text-sm
-              leading-5 text-slate-500"
+              leading-5 text-neutral-500"
             >
               {designation}
             </p>
@@ -91,8 +91,8 @@ export default function EmployeeCard({
             <span
               className="mt-2 inline-flex max-w-full
               items-center gap-1.5 rounded-md
-              bg-[#E8F7F6] px-2 py-1 text-xs
-              font-medium text-[#087F80]"
+              bg-brand-teal-soft px-2 py-1 text-xs
+              font-medium text-brand-teal-dark"
             >
               <BriefcaseBusiness size={12} />
               <span className="truncate">{department}</span>
@@ -102,25 +102,25 @@ export default function EmployeeCard({
 
         {/* Contact details */}
         <div className="mt-5 space-y-3 border-t
-          border-slate-100 pt-4"
+          border-border-light pt-4"
         >
           <div className="flex items-center gap-2.5">
             <Mail
               size={16}
-              className="shrink-0 text-slate-400"
+              className="shrink-0 text-neutral-400"
             />
 
             {email ? (
               <a
                 href={`mailto:${email}`}
-                className="truncate text-sm text-slate-600
-                transition-colors hover:text-[#0D9999]"
+                className="truncate text-sm text-neutral-600
+                transition-colors hover:text-brand-teal"
                 title={email}
               >
                 {email}
               </a>
             ) : (
-              <span className="text-sm text-slate-400">
+              <span className="text-sm text-neutral-400">
                 Email not available
               </span>
             )}
@@ -129,19 +129,19 @@ export default function EmployeeCard({
           <div className="flex items-center gap-2.5">
             <Phone
               size={16}
-              className="shrink-0 text-slate-400"
+              className="shrink-0 text-neutral-400"
             />
 
             {phone ? (
               <a
                 href={`tel:${phone}`}
-                className="truncate text-sm text-slate-600
-                transition-colors hover:text-[#0D9999]"
+                className="truncate text-sm text-neutral-600
+                transition-colors hover:text-brand-teal"
               >
                 {phone}
               </a>
             ) : (
-              <span className="text-sm text-slate-400">
+              <span className="text-sm text-neutral-400">
                 Phone not available
               </span>
             )}
@@ -150,9 +150,9 @@ export default function EmployeeCard({
 
         {/* Footer action */}
         <div className="mt-5 flex items-center
-          justify-between border-t border-slate-100 pt-4"
+          justify-between border-t border-border-light pt-4"
         >
-          <span className="text-xs font-medium text-slate-400">
+          <span className="text-xs font-medium text-neutral-400">
             ID: TRG-{String(id).padStart(4, "0")}
           </span>
 
@@ -160,8 +160,8 @@ export default function EmployeeCard({
             type="button"
             onClick={() => onViewProfile?.(employee)}
             className="inline-flex items-center gap-1
-            text-sm font-semibold text-[#0D9999]
-            transition-colors hover:text-[#087F80]"
+            text-sm font-semibold text-brand-teal
+            transition-colors hover:text-brand-teal-dark"
           >
             View Profile
             <ArrowUpRight

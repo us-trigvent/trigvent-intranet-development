@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-[#203D61] outline-none transition placeholder:text-slate-400 focus:border-[#0D9999] focus:ring-4 focus:ring-[#0D9999]/10";
+  "w-full rounded-xl border border-border-default bg-white px-3.5 py-2.5 text-sm text-brand-navy outline-none transition placeholder:text-neutral-400 focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10";
 
 const initialForm = {
   trainee: "",
@@ -76,46 +76,46 @@ export default function AddPayment() {
 
   const Field = ({ label, name, required = true, error, children }) => (
     <div>
-      <label htmlFor={name} className="mb-2 block text-sm font-medium text-slate-700">
+      <label htmlFor={name} className="mb-2 block text-sm font-medium text-text-secondary">
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-danger">*</span>}
       </label>
       {children}
-      {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
+    <div className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
       <header className="mb-6">
-        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-neutral-500">
           <span>Trigvent</span>
-          <span className="text-slate-300">/</span>
+          <span className="text-neutral-300">/</span>
           <span>Training</span>
-          <span className="text-slate-300">/</span>
-          <span className="text-[#0D9999]">Add Payment</span>
+          <span className="text-neutral-300">/</span>
+          <span className="text-brand-teal">Add Payment</span>
         </div>
 
-        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-[#203D61] sm:text-3xl">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]">
+        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-teal-soft text-brand-teal">
             <CreditCard size={23} />
           </span>
           Add Payment
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-neutral-500">
           Record a new payment for a trainee.
         </p>
       </header>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 sm:px-7">
+      <section className="overflow-hidden rounded-2xl border border-border-default/80 bg-white shadow-sm">
+        <div className="border-b border-border-default bg-surface-subtle/70 px-5 py-4 sm:px-7">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-teal-soft text-brand-teal">
               <CreditCard size={20} />
             </span>
             <div>
-              <h2 className="text-base font-semibold text-[#203D61]">Payment Details</h2>
-              <p className="mt-1 text-sm text-slate-500">Enter the trainee and transaction information.</p>
+              <h2 className="text-base font-semibold text-brand-navy">Payment Details</h2>
+              <p className="mt-1 text-sm text-neutral-500">Enter the trainee and transaction information.</p>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function AddPayment() {
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 p-5 sm:p-6 lg:grid-cols-2 lg:p-7">
             <Field label="Select Trainee" name="trainee" error={errors.trainee}>
               <div className="relative">
-                <UserRound size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <UserRound size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <select
                   id="trainee"
                   value={form.trainee}
@@ -152,7 +152,7 @@ export default function AddPayment() {
 
             <Field label="Date" name="date" error={errors.date}>
               <div className="relative">
-                <CalendarDays size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <CalendarDays size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <input
                   id="date"
                   type="date"
@@ -180,7 +180,7 @@ export default function AddPayment() {
 
             <Field label="Received By" name="receivedBy" error={errors.receivedBy}>
               <div className="relative">
-                <UsersRound size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <UsersRound size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <select
                   id="receivedBy"
                   value={form.receivedBy}
@@ -208,16 +208,16 @@ export default function AddPayment() {
           </div>
 
           {message && (
-            <p role="status" className="mx-5 mb-5 flex items-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-800 sm:mx-7">
+            <p role="status" className="mx-5 mb-5 flex items-center gap-2 rounded-xl border border-brand-teal-soft bg-brand-teal-soft px-4 py-3 text-sm font-medium text-brand-teal-dark sm:mx-7">
               <CheckCircle2 size={17} />
               {message}
             </p>
           )}
 
-          <div className="flex justify-end border-t border-slate-200 px-5 py-4 sm:px-7">
+          <div className="flex justify-end border-t border-border-default px-5 py-4 sm:px-7">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0D9999] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#087F80] focus:outline-none focus:ring-4 focus:ring-[#0D9999]/20"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-teal px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-teal-dark focus:outline-none focus:ring-4 focus:ring-brand-teal/20"
             >
               <Save size={17} />
               Save Payment

@@ -2,12 +2,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { loginUser } from "../actions/authActions";
 
+const getStoredSession = () => {
+  const storedSession =
+    localStorage.getItem("authSession") ||
+    sessionStorage.getItem("authSession");
+
+  if (!storedSession) return null;
+
+  try {
+    const session = JSON.parse(storedSession);
+    return session?.token ? session : null;
+  } catch {
+    localStorage.removeItem("authSession");
+    sessionStorage.removeItem("authSession");
+    return null;
+  }
+};
+
+const storedSession = getStoredSession();
+
 const initialState = {
-  user: null,
-  token: null,
+  user: storedSession?.user || null,
+  token: storedSession?.token || null,
   loading: false,
   error: null,
-  isAuthenticated: false,
+  isAuthenticated: Boolean(storedSession?.token),
 };
 
 const authSlice = createSlice({
@@ -21,6 +40,8 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.isAuthenticated = false;
+      localStorage.removeItem("authSession");
+      sessionStorage.removeItem("authSession");
     },
 
     clearError: (state) => {
@@ -42,19 +63,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = null;
 
-        // Supports common response structures.
-        // Confirm these paths against the actual API response.
-        const data = action.payload?.data ?? action.payload;
-
-        state.user = data?.user ?? null;
-
-        state.token =
-          data?.accessToken ??
-          data?.token ??
-          data?.access_token ??
-          null;
-
-        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = Boolean(action.payload.token);
       })
 
       // Login Failed

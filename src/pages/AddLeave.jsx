@@ -44,22 +44,22 @@ const leaveCategories = [
 const leaveTypes = ["Full", "First Half", "Second Half"];
 
 const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-[#203D61] outline-none transition placeholder:text-slate-400 focus:border-[#0D9999] focus:ring-4 focus:ring-[#0D9999]/10 disabled:cursor-not-allowed disabled:bg-slate-100";
+  "w-full rounded-xl border border-border-default bg-white px-3.5 py-2.5 text-sm text-brand-navy outline-none transition placeholder:text-neutral-400 focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10 disabled:cursor-not-allowed disabled:bg-surface-muted";
 
 function FormField({ label, required, error, children }) {
   return (
     <div className="min-w-0">
-      <label className="mb-2 block text-sm font-medium text-slate-700">
+      <label className="mb-2 block text-sm font-medium text-text-secondary">
         {label}
         {required && (
-          <span className="ml-1 text-rose-500">*</span>
+          <span className="ml-1 text-danger">*</span>
         )}
       </label>
 
       {children}
 
       {error && (
-        <p className="mt-1.5 text-xs text-rose-600">
+        <p className="mt-1.5 text-xs text-danger">
           {error}
         </p>
       )}
@@ -167,42 +167,42 @@ export default function AddLeave() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] px-4 pb-8 pt-20 sm:px-6 sm:pt-20 lg:px-8 lg:pt-8">
+    <div className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 sm:pt-20 lg:px-8 lg:pt-8">
       {/* Page Header */}
       <header className="mb-6">
-        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-neutral-500">
           <span>Trigvent</span>
-          <span className="text-slate-300">/</span>
+          <span className="text-neutral-300">/</span>
           <span>Leave Management</span>
-          <span className="text-slate-300">/</span>
-          <span className="text-[#0D9999]">Add Leave</span>
+          <span className="text-neutral-300">/</span>
+          <span className="text-brand-teal">Add Leave</span>
         </div>
 
-        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-[#203D61] sm:text-3xl">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]">
+        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-teal-soft text-brand-teal">
             <CalendarPlus size={23} />
           </span>
           Add Leave
         </h1>
 
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-neutral-500">
           Apply for a new leave and provide the required details.
         </p>
       </header>
 
       {/* Leave Form */}
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 sm:px-7">
+      <section className="overflow-hidden rounded-2xl border border-border-default/80 bg-white shadow-sm">
+        <div className="border-b border-border-default bg-surface-subtle/70 px-5 py-4 sm:px-7">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-teal-soft text-brand-teal">
               <FileText size={20} />
             </span>
 
             <div>
-              <h2 className="text-base font-semibold text-[#203D61]">
+              <h2 className="text-base font-semibold text-brand-navy">
                 Leave Information
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-neutral-500">
                 Enter the employee, dates and leave details.
               </p>
             </div>
@@ -220,7 +220,7 @@ export default function AddLeave() {
               <div className="relative">
                 <UserRound
                   size={17}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
                 />
 
                 <select
@@ -249,7 +249,7 @@ export default function AddLeave() {
               <div className="relative">
                 <Users
                   size={17}
-                  className="pointer-events-none absolute left-3 top-3 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-3 text-neutral-400"
                 />
 
                 <select
@@ -275,7 +275,7 @@ export default function AddLeave() {
                 </select>
               </div>
 
-              <p className="mt-1.5 text-xs text-slate-400">
+              <p className="mt-1.5 text-xs text-neutral-400">
                 Hold Ctrl (Windows) or Command (Mac) to select multiple managers.
               </p>
             </FormField>
@@ -311,7 +311,7 @@ export default function AddLeave() {
               <div className="relative">
                 <CalendarDays
                   size={17}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
                 />
 
                 <input
@@ -335,7 +335,7 @@ export default function AddLeave() {
               <div className="relative">
                 <CalendarDays
                   size={17}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
                 />
 
                 <input
@@ -386,12 +386,12 @@ export default function AddLeave() {
                 />
               </FormField>
 
-              <div className="mt-3 flex items-start gap-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div className="mt-3 flex items-start gap-2 rounded-xl border border-border-light bg-surface-subtle p-3">
                 <Info
                   size={17}
-                  className="mt-0.5 shrink-0 text-[#0D9999]"
+                  className="mt-0.5 shrink-0 text-brand-teal"
                 />
-                <p className="text-xs leading-5 text-slate-500">
+                <p className="text-xs leading-5 text-neutral-500">
                   Internal comments should be used for administrative
                   notes and must not be exposed to employees.
                 </p>
@@ -403,21 +403,21 @@ export default function AddLeave() {
           {feedback && (
             <div
               role="status"
-              className="mx-5 mb-5 rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-800 sm:mx-7"
+              className="mx-5 mb-5 rounded-xl border border-brand-teal-soft bg-brand-teal-soft p-4 text-sm leading-6 text-brand-teal-dark sm:mx-7"
             >
               {feedback}
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex flex-col-reverse justify-between gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:px-7">
-            <p className="text-xs text-slate-400">
+          <div className="flex flex-col-reverse justify-between gap-3 border-t border-border-light px-5 py-4 sm:flex-row sm:items-center sm:px-7">
+            <p className="text-xs text-neutral-400">
               Fields marked with * are required.
             </p>
 
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0D9999] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#087F80] focus:outline-none focus:ring-4 focus:ring-[#0D9999]/20"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-teal px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-teal-dark focus:outline-none focus:ring-4 focus:ring-brand-teal/20"
             >
               <Send size={16} />
               Add Leave

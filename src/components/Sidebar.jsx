@@ -229,7 +229,7 @@ export default function Sidebar() {
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
         className="fixed left-4 top-4 z-50 rounded-lg
-        bg-[#203D61] p-2.5 text-white shadow-lg lg:hidden"
+        bg-brand-navy p-2.5 text-white shadow-lg lg:hidden"
         aria-label="Toggle sidebar"
       >
         {mobileOpen ? <X size={22} /> : <Menu size={22} />}
@@ -248,7 +248,7 @@ export default function Sidebar() {
       <aside
         className={`fixed left-0 top-0 z-40 flex h-screen
         w-64 flex-col overflow-hidden
-        rounded-r-xl bg-[#203D61] text-white
+        rounded-r-xl bg-brand-navy text-white
         transition-transform duration-300
         lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
@@ -290,13 +290,13 @@ export default function Sidebar() {
                     text-left text-[15px] transition-colors
                     duration-200 ${
                       isActive
-                        ? "bg-[#2B496D] font-semibold text-white"
-                        : "text-[#D0DCEC] hover:bg-[#294767]"
+                        ? "bg-navy-muted font-semibold text-white"
+                        : "text-border-muted hover:bg-navy-light"
                     }`}
                   >
                     {isActive && (
                       <span className="absolute left-0 top-2.5
-                      h-8 w-1 rounded-r-full bg-[#0DA6A6]" />
+                      h-8 w-1 rounded-r-full bg-brand-teal-light" />
                     )}
 
                     <Icon
@@ -305,7 +305,7 @@ export default function Sidebar() {
                       className={`shrink-0 ${
                         isActive
                           ? "text-white"
-                          : "text-[#C0D0E4] group-hover:text-white"
+                          : "text-neutral-300 group-hover:text-white"
                       }`}
                     />
 
@@ -317,12 +317,12 @@ export default function Sidebar() {
                       (isExpanded ? (
                         <ChevronUp
                           size={16}
-                          className="text-[#A9BED7]"
+                          className="text-neutral-300"
                         />
                       ) : (
                         <ChevronDown
                           size={16}
-                          className="text-[#A9BED7]"
+                          className="text-neutral-300"
                         />
                       ))}
                   </button>
@@ -330,7 +330,7 @@ export default function Sidebar() {
                   {/* Submenu */}
                   {item.children && isExpanded && (
                     <ul className="ml-7 mt-2 space-y-1
-                    border-l border-[#355171] pl-4">
+                    border-l border-navy-light pl-4">
                       {item.children.map((child) => {
                         const ChildIcon = child.icon;
 
@@ -348,8 +348,8 @@ export default function Sidebar() {
                               text-left text-[14px]
                               transition-colors duration-200 ${
                                 childActive
-                                  ? "bg-[#2B496D] font-medium text-white"
-                                  : "text-[#9CB4D2] hover:bg-[#294767] hover:text-white"
+                                  ? "bg-navy-muted font-medium text-white"
+                                  : "text-neutral-300 hover:bg-navy-light hover:text-white"
                               }`}
                             >
                               <ChildIcon
@@ -378,8 +378,8 @@ export default function Sidebar() {
             className={`flex w-full items-center gap-3
             rounded-xl px-3 py-3 text-sm transition-colors ${
               activeItem === "Settings"
-                ? "bg-[#2B496D] text-white"
-                : "text-[#C0D0E4] hover:bg-[#294767] hover:text-white"
+                ? "bg-navy-muted text-white"
+                : "text-neutral-300 hover:bg-navy-light hover:text-white"
             }`}
           >
             <Settings size={20} />
@@ -388,10 +388,10 @@ export default function Sidebar() {
 
           {/* Logged-in User */}
           <div className="mt-3 flex items-center gap-3
-          rounded-xl bg-[#294767]/70 p-3">
+          rounded-xl bg-navy-light/70 p-3">
             <div className="flex h-10 w-10 shrink-0
             items-center justify-center rounded-full
-            bg-[#0DA6A6] text-sm font-semibold text-white">
+            bg-brand-teal-light text-sm font-semibold text-white">
               PS
             </div>
 
@@ -400,13 +400,13 @@ export default function Sidebar() {
                 Priya Sharma
               </p>
 
-              <p className="text-xs text-[#B6C8DF]">
+              <p className="text-xs text-neutral-300">
                 HR Manager
               </p>
             </div>
             <ChevronDown
               size={16}
-              className="text-[#A9BED7]"
+              className="text-neutral-300"
             />
           </div>
         </div>

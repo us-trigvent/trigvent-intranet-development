@@ -24,26 +24,26 @@ const FormField = forwardRef(function FormField(
 ) {
   const baseClass =
     "w-full min-w-0 rounded-xl border bg-white px-3.5 py-2.5 " +
-    "text-sm text-slate-700 outline-none transition " +
-    "placeholder:text-slate-400 focus:border-[#0D9999] " +
-    "focus:ring-4 focus:ring-[#0D9999]/10 disabled:cursor-not-allowed " +
-    "disabled:bg-slate-100";
+    "text-sm text-text-secondary outline-none transition " +
+    "placeholder:text-neutral-400 focus:border-brand-teal " +
+    "focus:ring-4 focus:ring-brand-teal/10 disabled:cursor-not-allowed " +
+    "disabled:bg-surface-muted";
 
   const hasError = Boolean(error);
 
   const inputClass = `${baseClass} ${
-    hasError ? "border-rose-400" : "border-slate-200"
+    hasError ? "border-danger" : "border-border-default"
   }`;
 
   return (
     <div className="min-w-0">
       <label
         htmlFor={name}
-        className="mb-2 block text-sm font-medium text-slate-700"
+        className="mb-2 block text-sm font-medium text-text-secondary"
       >
         {label}
         {required && (
-          <span className="ml-1 text-rose-500" aria-hidden="true">
+          <span className="ml-1 text-danger" aria-hidden="true">
             *
           </span>
         )}
@@ -54,7 +54,7 @@ const FormField = forwardRef(function FormField(
           <Icon
             size={17}
             className="pointer-events-none absolute left-3.5 top-1/2
-              -translate-y-1/2 text-slate-400"
+              -translate-y-1/2 text-neutral-400"
           />
         )}
 
@@ -115,7 +115,7 @@ const FormField = forwardRef(function FormField(
                 <label
                   key={item.value}
                   className="inline-flex cursor-pointer items-center gap-2
-                    text-sm text-slate-600"
+                    text-sm text-neutral-600"
                 >
                   <input
                     type="radio"
@@ -125,7 +125,7 @@ const FormField = forwardRef(function FormField(
                     onChange={onChange}
                     required={required}
                     disabled={disabled}
-                    className="h-4 w-4 accent-[#0D9999]"
+                    className="h-4 w-4 accent-brand-teal"
                   />
                   {item.label}
                 </label>
@@ -143,9 +143,9 @@ const FormField = forwardRef(function FormField(
             required={required}
             disabled={disabled}
             className={`${inputClass} file:mr-3 file:cursor-pointer
-              file:rounded-lg file:border-0 file:bg-[#E8F7F6]
+              file:rounded-lg file:border-0 file:bg-brand-teal-soft
               file:px-3 file:py-1.5 file:text-xs
-              file:font-semibold file:text-[#087F80]`}
+              file:font-semibold file:text-brand-teal-dark`}
           />
         ) : (
           <input
@@ -170,11 +170,11 @@ const FormField = forwardRef(function FormField(
       </div>
 
       {hint && !error && (
-        <p className="mt-1.5 text-xs text-slate-400">{hint}</p>
+        <p className="mt-1.5 text-xs text-neutral-400">{hint}</p>
       )}
 
       {error && (
-        <p role="alert" className="mt-1.5 text-xs text-rose-600">
+        <p role="alert" className="mt-1.5 text-xs text-danger">
           {error}
         </p>
       )}

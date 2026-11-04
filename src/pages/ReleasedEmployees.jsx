@@ -145,7 +145,7 @@ export default function ReleasedEmployeeListing() {
       headerName: "Employee",
       render: (value, row) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E8F7F6] text-xs font-bold text-[#087F80]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-teal-soft text-xs font-bold text-brand-teal-dark">
             {value
               ?.split(" ")
               .filter(Boolean)
@@ -155,10 +155,10 @@ export default function ReleasedEmployeeListing() {
               .toUpperCase() || "NA"}
           </div>
           <div>
-            <p className="whitespace-nowrap text-sm font-semibold text-[#203D61]">
+            <p className="whitespace-nowrap text-sm font-semibold text-brand-navy">
               {value}
             </p>
-            <p className="mt-0.5 text-xs text-slate-400">
+            <p className="mt-0.5 text-xs text-neutral-400">
               {row.type || "Team member"}
             </p>
           </div>
@@ -213,7 +213,7 @@ export default function ReleasedEmployeeListing() {
             title={`Edit ${row.name}`}
             aria-label={`Edit ${row.name}`}
             onClick={() => navigate(`/hr/released-employees/edit/${row.id}`)}
-            className="rounded-lg border border-slate-200 bg-white p-2 text-sky-600 shadow-sm transition hover:border-sky-200 hover:bg-sky-50"
+            className="rounded-lg border border-border-default bg-white p-2 text-info shadow-sm transition hover:border-info-soft hover:bg-info-soft"
           >
             <Pencil size={15} />
           </button>
@@ -222,7 +222,7 @@ export default function ReleasedEmployeeListing() {
             title={`View ${row.name}`}
             aria-label={`View ${row.name}`}
             onClick={() => navigate(`/hr/released-employees/view/${row.id}`)}
-            className="rounded-lg border border-slate-200 bg-white p-2 text-[#087F80] shadow-sm transition hover:border-teal-200 hover:bg-teal-50"
+            className="rounded-lg border border-border-default bg-white p-2 text-brand-teal-dark shadow-sm transition hover:border-brand-teal-soft hover:bg-brand-teal-soft"
           >
             <Eye size={15} />
           </button>
@@ -231,7 +231,7 @@ export default function ReleasedEmployeeListing() {
             title={`Delete ${row.name}`}
             aria-label={`Delete ${row.name}`}
             onClick={() => window.confirm(`Delete ${row.name}?`)}
-            className="rounded-lg border border-slate-200 bg-white p-2 text-rose-500 shadow-sm transition hover:border-rose-200 hover:bg-rose-50"
+            className="rounded-lg border border-border-default bg-white p-2 text-danger shadow-sm transition hover:border-danger-soft hover:bg-danger-soft"
           >
             <Trash2 size={15} />
           </button>
@@ -241,14 +241,14 @@ export default function ReleasedEmployeeListing() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#F5F8FC] px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
+    <main className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
       {/* Breadcrumb */}
-      <div className="mb-2 flex items-center gap-2 text-xs text-slate-500">
+      <div className="mb-2 flex items-center gap-2 text-xs text-neutral-500">
         <span>Trigvent</span>
         <span>/</span>
         <span>Human Resources</span>
         <span>/</span>
-        <span className="font-medium text-[#203D61]">
+        <span className="font-medium text-brand-navy">
           Released Employees
         </span>
       </div>
@@ -256,16 +256,16 @@ export default function ReleasedEmployeeListing() {
       {/* Page heading */}
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#6A9BFF] sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-info-light sm:text-3xl">
             Released Employee Listing
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-neutral-500">
             Manage employee exits, release records, and service-end details.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start rounded-xl border border-blue-100 bg-white px-4 py-2.5 text-sm font-medium text-[#203D61] shadow-sm sm:self-auto">
-          <Users size={17} className="text-blue-500" />
+        <div className="flex items-center gap-2 self-start rounded-xl border border-info-soft bg-white px-4 py-2.5 text-sm font-medium text-brand-navy shadow-sm sm:self-auto">
+          <Users size={17} className="text-info" />
           {releasedEmployees.length} records
         </div>
       </div>

@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import MainLayout from "../Layout/MainLayout";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 import Dashboard from "../pages/Dashboard";
 import EmployeeDirectory from "../pages/EmployeeDirectory";
@@ -44,7 +45,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

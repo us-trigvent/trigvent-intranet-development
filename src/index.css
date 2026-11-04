@@ -1,6 +1,87 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+:root {
+  --palette-brand-teal: #0d9999;
+  --palette-brand-teal-dark: #087f80;
+  --palette-brand-teal-light: #0da6a6;
+  --palette-brand-teal-soft: #e8f7f6;
+  --palette-brand-navy: #203d61;
+  --palette-navy-light: #294767;
+  --palette-navy-dark: #172b45;
+  --palette-page: #f5f8fc;
+  --palette-surface-subtle: #f8fafd;
+  --palette-surface-muted: #edf2f7;
+  --palette-text-primary: #203d61;
+  --palette-text-secondary: #334155;
+  --palette-text-muted: #64748b;
+  --palette-border-default: #e2e8f0;
+  --palette-border-light: #edf2f7;
+  --palette-border-strong: #c9d7e7;
+  --palette-neutral-200: #e2e8f0;
+  --palette-neutral-300: #a9bed7;
+  --palette-neutral-400: #94a3b8;
+  --palette-neutral-500: #8492a6;
+  --palette-neutral-600: #64748b;
+  --palette-success: #0f766e;
+  --palette-success-dark: #087f80;
+  --palette-success-soft: #ecfdf5;
+  --palette-danger: #d14343;
+  --palette-danger-dark: #b91c1c;
+  --palette-danger-soft: #fff0f0;
+  --palette-warning: #f5a623;
+  --palette-warning-dark: #a66500;
+  --palette-warning-soft: #fff5e5;
+  --palette-info: #1769f5;
+  --palette-info-dark: #0f55d4;
+  --palette-info-light: #6a9bff;
+  --palette-info-soft: #eaf3ff;
+  --palette-violet: #9333ea;
+  --palette-violet-dark: #581c87;
+  --palette-violet-soft: #f5f3ff;
+  --palette-shadow-subtle: rgba(15, 23, 42, 0.035);
+}
+
+@theme {
+  --color-brand-teal: var(--palette-brand-teal);
+  --color-brand-teal-dark: var(--palette-brand-teal-dark);
+  --color-brand-teal-light: var(--palette-brand-teal-light);
+  --color-brand-teal-soft: var(--palette-brand-teal-soft);
+  --color-brand-navy: var(--palette-brand-navy);
+  --color-navy-light: var(--palette-navy-light);
+  --color-navy-dark: var(--palette-navy-dark);
+  --color-page: var(--palette-page);
+  --color-surface-subtle: var(--palette-surface-subtle);
+  --color-surface-muted: var(--palette-surface-muted);
+  --color-text-primary: var(--palette-text-primary);
+  --color-text-secondary: var(--palette-text-secondary);
+  --color-text-muted: var(--palette-text-muted);
+  --color-border-default: var(--palette-border-default);
+  --color-border-light: var(--palette-border-light);
+  --color-border-strong: var(--palette-border-strong);
+  --color-neutral-200: var(--palette-neutral-200);
+  --color-neutral-300: var(--palette-neutral-300);
+  --color-neutral-400: var(--palette-neutral-400);
+  --color-neutral-500: var(--palette-neutral-500);
+  --color-neutral-600: var(--palette-neutral-600);
+  --color-success: var(--palette-success);
+  --color-success-dark: var(--palette-success-dark);
+  --color-success-soft: var(--palette-success-soft);
+  --color-danger: var(--palette-danger);
+  --color-danger-dark: var(--palette-danger-dark);
+  --color-danger-soft: var(--palette-danger-soft);
+  --color-warning: var(--palette-warning);
+  --color-warning-dark: var(--palette-warning-dark);
+  --color-warning-soft: var(--palette-warning-soft);
+  --color-info: var(--palette-info);
+  --color-info-dark: var(--palette-info-dark);
+  --color-info-light: var(--palette-info-light);
+  --color-info-soft: var(--palette-info-soft);
+  --color-violet: var(--palette-violet);
+  --color-violet-dark: var(--palette-violet-dark);
+  --color-violet-soft: var(--palette-violet-soft);
+}
+
 body {
   margin: 0;
   font-family: "Inter", sans-serif;

@@ -16,14 +16,14 @@ import FormSection from "../components/employee-form/FormSection";
 function FormField({ label, required, error, children }) {
   return (
     <div className="min-w-0">
-      <label className="mb-2 block text-sm font-medium text-slate-700">
+      <label className="mb-2 block text-sm font-medium text-text-secondary">
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-danger">*</span>}
       </label>
-      <div className="[&_input:not([type=radio]):not([type=checkbox])]:w-full [&_input:not([type=radio]):not([type=checkbox])]:rounded-xl [&_input:not([type=radio]):not([type=checkbox])]:border [&_input:not([type=radio]):not([type=checkbox])]:border-slate-200 [&_input:not([type=radio]):not([type=checkbox])]:bg-white [&_input:not([type=radio]):not([type=checkbox])]:px-3.5 [&_input:not([type=radio]):not([type=checkbox])]:py-2.5 [&_input:not([type=radio]):not([type=checkbox])]:text-sm [&_input:not([type=radio]):not([type=checkbox])]:text-slate-700 [&_input:not([type=radio]):not([type=checkbox])]:outline-none [&_select]:w-full [&_select]:rounded-xl [&_select]:border [&_select]:border-slate-200 [&_select]:bg-white [&_select]:px-3.5 [&_select]:py-2.5 [&_select]:text-sm [&_select]:text-slate-700 [&_select]:outline-none [&_textarea]:w-full [&_textarea]:rounded-xl [&_textarea]:border [&_textarea]:border-slate-200 [&_textarea]:bg-white [&_textarea]:px-3.5 [&_textarea]:py-2.5 [&_textarea]:text-sm [&_textarea]:text-slate-700 [&_textarea]:outline-none">
+      <div className="[&_input:not([type=radio]):not([type=checkbox])]:w-full [&_input:not([type=radio]):not([type=checkbox])]:rounded-xl [&_input:not([type=radio]):not([type=checkbox])]:border [&_input:not([type=radio]):not([type=checkbox])]:border-border-default [&_input:not([type=radio]):not([type=checkbox])]:bg-white [&_input:not([type=radio]):not([type=checkbox])]:px-3.5 [&_input:not([type=radio]):not([type=checkbox])]:py-2.5 [&_input:not([type=radio]):not([type=checkbox])]:text-sm [&_input:not([type=radio]):not([type=checkbox])]:text-text-secondary [&_input:not([type=radio]):not([type=checkbox])]:outline-none [&_select]:w-full [&_select]:rounded-xl [&_select]:border [&_select]:border-border-default [&_select]:bg-white [&_select]:px-3.5 [&_select]:py-2.5 [&_select]:text-sm [&_select]:text-text-secondary [&_select]:outline-none [&_textarea]:w-full [&_textarea]:rounded-xl [&_textarea]:border [&_textarea]:border-border-default [&_textarea]:bg-white [&_textarea]:px-3.5 [&_textarea]:py-2.5 [&_textarea]:text-sm [&_textarea]:text-text-secondary [&_textarea]:outline-none">
         {children}
       </div>
-      {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
     </div>
   );
 }
@@ -71,18 +71,18 @@ function StepNavigation({ activeStep, onStepClick }) {
             onClick={() => onStepClick(index)}
             className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-3 text-left transition sm:px-4 ${
               active
-                ? "border-[#0D9999] bg-[#E8F7F6] text-[#087F80]"
+                ? "border-brand-teal bg-brand-teal-soft text-brand-teal-dark"
                 : completed
-                  ? "border-teal-100 bg-teal-50/50 text-teal-700"
-                  : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                  ? "border-brand-teal-light-soft bg-brand-teal-soft/50 text-brand-teal-dark"
+                  : "border-border-default bg-white text-neutral-500 hover:border-border-strong"
             }`}
           >
             <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
               active
-                ? "bg-[#0D9999] text-white"
+                ? "bg-brand-teal text-white"
                 : completed
-                  ? "bg-teal-100 text-teal-700"
-                  : "bg-slate-100 text-slate-500"
+                  ? "bg-brand-teal-light-soft text-brand-teal-dark"
+                  : "bg-surface-muted text-neutral-500"
             }`}>
               {completed ? <Check size={18} /> : <Icon size={18} />}
             </span>
@@ -169,22 +169,22 @@ export default function AddTrainee() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
+    <div className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
       <header className="mb-6">
-        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-neutral-500">
           <span>Trigvent</span>
-          <span className="text-slate-300">/</span>
+          <span className="text-neutral-300">/</span>
           <span>Training</span>
-          <span className="text-slate-300">/</span>
-          <span className="text-[#0D9999]">Add Trainee</span>
+          <span className="text-neutral-300">/</span>
+          <span className="text-brand-teal">Add Trainee</span>
         </div>
-        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-[#203D61] sm:text-3xl">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]">
+        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-teal-soft text-brand-teal">
             <UserRoundPlus size={23} />
           </span>
           Add Trainee
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-neutral-500">
           Enter the trainee's personal, course and enrollment details.
         </p>
       </header>
@@ -223,18 +223,18 @@ export default function AddTrainee() {
             <FormField label="Add Studies">
               <div className="flex gap-2">
                 <input {...field("studies")} placeholder="Type here..." />
-                <button type="button" className="flex h-10.5 w-10.5 shrink-0 items-center justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]" aria-label="Add study">
+                <button type="button" className="flex h-10.5 w-10.5 shrink-0 items-center justify-center rounded-xl bg-brand-teal-soft text-brand-teal" aria-label="Add study">
                   <Plus size={19} />
                 </button>
               </div>
             </FormField>
             <div className="xl:col-span-3">
               <fieldset>
-                <legend className="mb-2 text-sm font-medium text-slate-700">Gender <span className="text-red-500">*</span></legend>
+                <legend className="mb-2 text-sm font-medium text-text-secondary">Gender <span className="text-danger">*</span></legend>
                 <div className="flex gap-6">
                   {["Male", "Female"].map((gender) => (
-                    <label key={gender} className="flex items-center gap-2 text-sm text-slate-700">
-                      <input type="radio" name="gender" value={gender} checked={form.gender === gender} onChange={updateField} className="accent-[#0D9999]" />
+                    <label key={gender} className="flex items-center gap-2 text-sm text-text-secondary">
+                      <input type="radio" name="gender" value={gender} checked={form.gender === gender} onChange={updateField} className="accent-brand-teal" />
                       {gender}
                     </label>
                   ))}
@@ -313,7 +313,7 @@ export default function AddTrainee() {
         )}
 
         {feedback && (
-          <div role="status" className="flex items-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-800">
+          <div role="status" className="flex items-center gap-2 rounded-xl border border-brand-teal-soft bg-brand-teal-soft px-4 py-3 text-sm font-medium text-brand-teal-dark">
             <Check size={17} />
             {feedback}
           </div>
@@ -324,7 +324,7 @@ export default function AddTrainee() {
             type="button"
             onClick={() => goToStep(activeStep - 1)}
             disabled={activeStep === 0}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-white px-5 py-2.5 text-sm font-medium text-neutral-600 transition hover:bg-surface-subtle disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ArrowLeft size={17} />
             Previous
@@ -334,7 +334,7 @@ export default function AddTrainee() {
             <button
               type="button"
               onClick={() => goToStep(activeStep + 1)}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0D9999] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#087F80]"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-teal px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-teal-dark"
             >
               Next: {steps[activeStep + 1].label}
               <ArrowRight size={17} />
@@ -342,7 +342,7 @@ export default function AddTrainee() {
           ) : (
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0D9999] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#087F80]"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-teal px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-teal-dark"
             >
               <Save size={17} />
               Save Trainee Details

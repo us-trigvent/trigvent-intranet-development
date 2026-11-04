@@ -13,23 +13,23 @@ export default function FormSection({
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200/80
+    <section className="rounded-2xl border border-border-default/80
       bg-white p-5 shadow-sm sm:p-6 lg:p-7"
     >
       <div className="mb-6 flex items-start gap-3.5">
         <div className="flex h-11 w-11 shrink-0 items-center
-          justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]"
+          justify-center rounded-xl bg-brand-teal-soft text-brand-teal"
         >
           {Icon && <Icon size={21} strokeWidth={1.8} />}
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-[#203D61]">
+          <h2 className="text-lg font-semibold tracking-tight text-brand-navy">
             {title}
           </h2>
 
           {description && (
-            <p className="mt-1 text-sm leading-5 text-slate-500">
+            <p className="mt-1 text-sm leading-5 text-neutral-500">
               {description}
             </p>
           )}

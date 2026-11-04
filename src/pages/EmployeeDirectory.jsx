@@ -119,7 +119,7 @@ export default function EmployeeDirectory() {
   }, [search, department]);
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] px-4 pb-8
+    <div className="min-h-screen bg-page px-4 pb-8
       pt-20 sm:px-6 sm:pt-20 lg:px-8 lg:pt-8"
     >
       {/* Page Header */}
@@ -128,22 +128,22 @@ export default function EmployeeDirectory() {
       >
         <div>
           <div className="mb-2 flex items-center gap-2
-            text-xs font-medium text-slate-500"
+            text-xs font-medium text-neutral-500"
           >
             <span>Trigvent</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-[#0D9999]">
+            <span className="text-neutral-300">/</span>
+            <span className="text-brand-teal">
               Employee Directory
             </span>
           </div>
 
           <h1 className="text-2xl font-semibold tracking-tight
-            text-[#203D61] sm:text-3xl"
+            text-brand-navy sm:text-3xl"
           >
             Employee Directory
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500 sm:text-base">
+          <p className="mt-2 text-sm text-neutral-500 sm:text-base">
             Find and connect with your teammates across Trigvent.
           </p>
         </div>
@@ -151,11 +151,11 @@ export default function EmployeeDirectory() {
         <Link
           to="/hr/add-employee"
           className="inline-flex w-fit items-center
-            justify-center gap-2 rounded-xl bg-[#0D9999]
+            justify-center gap-2 rounded-xl bg-brand-teal
             px-4 py-3 text-sm font-semibold text-white
-            shadow-sm transition-colors hover:bg-[#087F80]
+            shadow-sm transition-colors hover:bg-brand-teal-dark
             focus:outline-none focus:ring-2
-            focus:ring-[#0D9999] focus:ring-offset-2"
+            focus:ring-brand-teal focus:ring-offset-2"
         >
           <UserPlus size={18} />
           Add Employee
@@ -165,58 +165,58 @@ export default function EmployeeDirectory() {
       {/* Directory Summary */}
       {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex items-center gap-4 rounded-2xl
-          border border-slate-200/80 bg-white p-5 shadow-sm"
+          border border-border-default/80 bg-white p-5 shadow-sm"
         >
           <div className="flex h-12 w-12 items-center
-            justify-center rounded-xl bg-[#E8F7F6]
-            text-[#0D9999]"
+            justify-center rounded-xl bg-brand-teal-soft
+            text-brand-teal"
           >
             <UsersRound size={23} />
           </div>
 
           <div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-neutral-500">
               Total Employees
             </p>
-            <p className="mt-1 text-2xl font-semibold text-[#203D61]">
+            <p className="mt-1 text-2xl font-semibold text-brand-navy">
               {employees.length}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4 rounded-2xl
-          border border-slate-200/80 bg-white p-5 shadow-sm"
+          border border-border-default/80 bg-white p-5 shadow-sm"
         >
           <div className="flex h-12 w-12 items-center
-            justify-center rounded-xl bg-blue-50 text-blue-700"
+            justify-center rounded-xl bg-info-soft text-info-dark"
           >
             <Building2 size={23} />
           </div>
 
           <div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-neutral-500">
               Departments
             </p>
-            <p className="mt-1 text-2xl font-semibold text-[#203D61]">
+            <p className="mt-1 text-2xl font-semibold text-brand-navy">
               {new Set(employees.map((employee) => employee.department)).size}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4 rounded-2xl
-          border border-slate-200/80 bg-white p-5 shadow-sm"
+          border border-border-default/80 bg-white p-5 shadow-sm"
         >
           <div className="flex h-12 w-12 items-center
-            justify-center rounded-xl bg-violet-50 text-violet-700"
+            justify-center rounded-xl bg-violet-soft text-violet-dark"
           >
             <BriefcaseBusiness size={23} />
           </div>
 
           <div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-neutral-500">
               Matching Employees
             </p>
-            <p className="mt-1 text-2xl font-semibold text-[#203D61]">
+            <p className="mt-1 text-2xl font-semibold text-brand-navy">
               {filteredEmployees.length}
             </p>
           </div>
@@ -225,14 +225,14 @@ export default function EmployeeDirectory() {
 
       {/* Search and Filter */}
       <section className="mb-6 rounded-2xl border
-        border-slate-200/80 bg-white p-4 shadow-sm sm:p-5"
+        border-border-default/80 bg-white p-4 shadow-sm sm:p-5"
       >
         <div className="flex flex-col gap-3 lg:flex-row">
           <div className="relative flex-1">
             <Search
               size={19}
               className="absolute left-4 top-1/2
-                -translate-y-1/2 text-slate-400"
+                -translate-y-1/2 text-neutral-400"
             />
 
             <input
@@ -242,11 +242,11 @@ export default function EmployeeDirectory() {
               placeholder="Search by name, designation, email..."
               aria-label="Search employees"
               className="h-12 w-full rounded-xl border
-                border-slate-200 bg-slate-50/70 pl-11 pr-4
-                text-sm text-slate-700 outline-none
-                transition placeholder:text-slate-400
-                focus:border-[#0D9999] focus:bg-white
-                focus:ring-4 focus:ring-[#0D9999]/10"
+                border-border-default bg-surface-subtle/70 pl-11 pr-4
+                text-sm text-text-secondary outline-none
+                transition placeholder:text-neutral-400
+                focus:border-brand-teal focus:bg-white
+                focus:ring-4 focus:ring-brand-teal/10"
             />
           </div>
 
@@ -256,10 +256,10 @@ export default function EmployeeDirectory() {
               onChange={(event) => setDepartment(event.target.value)}
               aria-label="Filter by department"
               className="h-12 min-w-0 rounded-xl border
-                border-slate-200 bg-white px-4 text-sm
-                text-slate-700 outline-none transition
-                focus:border-[#0D9999] focus:ring-4
-                focus:ring-[#0D9999]/10 sm:min-w-[210px]"
+                border-border-default bg-white px-4 text-sm
+                text-text-secondary outline-none transition
+                focus:border-brand-teal focus:ring-4
+                focus:ring-brand-teal/10 sm:min-w-[210px]"
             >
               {departments.map((item) => (
                 <option key={item} value={item}>
@@ -277,9 +277,9 @@ export default function EmployeeDirectory() {
                 }}
                 className="inline-flex h-12 items-center
                   justify-center gap-2 rounded-xl
-                  border border-slate-200 px-4 text-sm
-                  font-medium text-slate-600 transition
-                  hover:bg-slate-50"
+                  border border-border-default px-4 text-sm
+                  font-medium text-neutral-600 transition
+                  hover:bg-surface-subtle"
               >
                 <X size={16} />
                 Clear
@@ -291,18 +291,18 @@ export default function EmployeeDirectory() {
         <div className="mt-4 flex flex-wrap items-center
           justify-between gap-3"
         >
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-neutral-500">
             Showing{" "}
-            <span className="font-semibold text-slate-700">
+            <span className="font-semibold text-text-secondary">
               {filteredEmployees.length}
             </span>{" "}
             of {employees.length} employees
           </p>
 
           <span className="inline-flex items-center gap-2
-            text-xs font-medium text-slate-500"
+            text-xs font-medium text-neutral-500"
           >
-            <span className="h-2 w-2 rounded-full bg-[#0D9999]" />
+            <span className="h-2 w-2 rounded-full bg-brand-teal" />
             Employee directory
           </span>
         </div>
@@ -324,21 +324,21 @@ export default function EmployeeDirectory() {
       ) : (
         <div className="flex min-h-[300px] flex-col
           items-center justify-center rounded-2xl
-          border border-dashed border-slate-300
+          border border-dashed border-border-strong
           bg-white px-6 py-12 text-center"
         >
           <div className="mb-4 flex h-14 w-14 items-center
-            justify-center rounded-2xl bg-[#E8F7F6]
-            text-[#0D9999]"
+            justify-center rounded-2xl bg-brand-teal-soft
+            text-brand-teal"
           >
             <UsersRound size={27} />
           </div>
 
-          <h2 className="text-lg font-semibold text-[#203D61]">
+          <h2 className="text-lg font-semibold text-brand-navy">
             No employees found
           </h2>
 
-          <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
+          <p className="mt-2 max-w-sm text-sm leading-6 text-neutral-500">
             Try another name or designation, or choose a different department.
           </p>
 
@@ -348,9 +348,9 @@ export default function EmployeeDirectory() {
               setSearch("");
               setDepartment("All Departments");
             }}
-            className="mt-5 rounded-xl bg-[#203D61]
+            className="mt-5 rounded-xl bg-brand-navy
               px-4 py-2.5 text-sm font-medium
-              text-white transition hover:bg-[#294767]"
+              text-white transition hover:bg-navy-light"
           >
             Reset filters
           </button>
@@ -361,7 +361,7 @@ export default function EmployeeDirectory() {
       {selectedEmployee && (
         <div
           className="fixed inset-0 z-[60] flex items-center
-            justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+            justify-center bg-navy-dark/40 p-4 backdrop-blur-sm"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setSelectedEmployee(null);
@@ -373,15 +373,15 @@ export default function EmployeeDirectory() {
             aria-modal="true"
             aria-labelledby="employee-profile-title"
             className="w-full max-w-md overflow-hidden
-              rounded-2xl border border-slate-200
+              rounded-2xl border border-border-default
               bg-white shadow-2xl"
           >
             <div className="flex items-center justify-between
-              border-b border-slate-100 px-5 py-4"
+              border-b border-border-light px-5 py-4"
             >
               <h2
                 id="employee-profile-title"
-                className="text-lg font-semibold text-[#203D61]"
+                className="text-lg font-semibold text-brand-navy"
               >
                 Employee Profile
               </h2>
@@ -390,8 +390,8 @@ export default function EmployeeDirectory() {
                 type="button"
                 onClick={() => setSelectedEmployee(null)}
                 aria-label="Close employee profile"
-                className="rounded-lg p-2 text-slate-400
-                  transition hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-2 text-neutral-400
+                  transition hover:bg-surface-muted hover:text-text-secondary"
               >
                 <X size={19} />
               </button>
@@ -407,8 +407,8 @@ export default function EmployeeDirectory() {
                   />
                 ) : (
                   <div className="flex h-20 w-20 items-center
-                    justify-center rounded-2xl bg-[#E8F7F6]
-                    text-2xl font-semibold text-[#087F80]"
+                    justify-center rounded-2xl bg-brand-teal-soft
+                    text-2xl font-semibold text-brand-teal-dark"
                   >
                     {selectedEmployee.name
                       .split(" ")
@@ -420,40 +420,40 @@ export default function EmployeeDirectory() {
                   </div>
                 )}
 
-                <h3 className="mt-4 text-xl font-semibold text-[#203D61]">
+                <h3 className="mt-4 text-xl font-semibold text-brand-navy">
                   {selectedEmployee.name}
                 </h3>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-neutral-500">
                   {selectedEmployee.designation}
                 </p>
 
                 <span className="mt-3 rounded-full
-                  bg-[#E8F7F6] px-3 py-1.5 text-xs
-                  font-medium text-[#087F80]"
+                  bg-brand-teal-soft px-3 py-1.5 text-xs
+                  font-medium text-brand-teal-dark"
                 >
                   {selectedEmployee.department}
                 </span>
               </div>
 
               <div className="mt-6 space-y-4 rounded-xl
-                bg-slate-50 p-4"
+                bg-surface-subtle p-4"
               >
                 <div className="flex items-start gap-3">
-                  <Mail size={18} className="mt-0.5 text-[#0D9999]" />
+                  <Mail size={18} className="mt-0.5 text-brand-teal" />
                   <div className="min-w-0">
-                    <p className="text-xs text-slate-400">Email address</p>
-                    <p className="mt-1 break-all text-sm text-slate-700">
+                    <p className="text-xs text-neutral-400">Email address</p>
+                    <p className="mt-1 break-all text-sm text-text-secondary">
                       {selectedEmployee.email || "Not available"}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Phone size={18} className="mt-0.5 text-[#0D9999]" />
+                  <Phone size={18} className="mt-0.5 text-brand-teal" />
                   <div>
-                    <p className="text-xs text-slate-400">Phone number</p>
-                    <p className="mt-1 text-sm text-slate-700">
+                    <p className="text-xs text-neutral-400">Phone number</p>
+                    <p className="mt-1 text-sm text-text-secondary">
                       {selectedEmployee.phone || "Not available"}
                     </p>
                   </div>
@@ -462,11 +462,11 @@ export default function EmployeeDirectory() {
                 <div className="flex items-start gap-3">
                   <BriefcaseBusiness
                     size={18}
-                    className="mt-0.5 text-[#0D9999]"
+                    className="mt-0.5 text-brand-teal"
                   />
                   <div>
-                    <p className="text-xs text-slate-400">Employee ID</p>
-                    <p className="mt-1 text-sm text-slate-700">
+                    <p className="text-xs text-neutral-400">Employee ID</p>
+                    <p className="mt-1 text-sm text-text-secondary">
                       TRG-{String(selectedEmployee.id).padStart(4, "0")}
                     </p>
                   </div>
@@ -477,9 +477,9 @@ export default function EmployeeDirectory() {
                 type="button"
                 onClick={() => setSelectedEmployee(null)}
                 className="mt-5 w-full rounded-xl
-                  bg-[#203D61] px-4 py-3 text-sm
+                  bg-brand-navy px-4 py-3 text-sm
                   font-semibold text-white transition
-                  hover:bg-[#294767]"
+                  hover:bg-navy-light"
               >
                 Close Profile
               </button>
@@ -488,8 +488,8 @@ export default function EmployeeDirectory() {
         </div>
       )}
 
-      <footer className="mt-8 border-t border-slate-200
-        pt-5 text-center text-xs text-slate-400"
+      <footer className="mt-8 border-t border-border-default
+        pt-5 text-center text-xs text-neutral-400"
       >
         Trigvent Solutions · Employee Directory
       </footer>

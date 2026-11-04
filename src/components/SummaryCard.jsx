@@ -8,20 +8,20 @@ export default function SummaryCard({
 }) {
   const colorStyles = {
     teal: {
-      icon: "bg-teal-50 text-teal-700",
-      decoration: "bg-teal-50",
+      icon: "bg-brand-teal-soft text-brand-teal-dark",
+      decoration: "bg-brand-teal-soft",
     },
     amber: {
-      icon: "bg-amber-50 text-amber-700",
-      decoration: "bg-amber-50",
+      icon: "bg-warning-soft text-warning-dark",
+      decoration: "bg-warning-soft",
     },
     violet: {
-      icon: "bg-violet-50 text-violet-700",
-      decoration: "bg-violet-50",
+      icon: "bg-violet-soft text-violet-dark",
+      decoration: "bg-violet-soft",
     },
     rose: {
-      icon: "bg-rose-50 text-rose-700",
-      decoration: "bg-rose-50",
+      icon: "bg-danger-soft text-danger-dark",
+      decoration: "bg-danger-soft",
     },
   };
 
@@ -30,7 +30,7 @@ export default function SummaryCard({
   return (
     <div
       className="group relative overflow-hidden rounded-2xl
-        border border-slate-200/80 bg-white p-5
+        border border-border-default/80 bg-white p-5
         shadow-sm transition-all duration-200
         hover:-translate-y-0.5 hover:shadow-md"
     >
@@ -45,16 +45,16 @@ export default function SummaryCard({
       <div className="relative flex items-start justify-between gap-4">
         {/* Card information */}
         <div className="min-w-0">
-          <p className="text-sm font-medium leading-5 text-slate-500">
+          <p className="text-sm font-medium leading-5 text-neutral-500">
             {title}
           </p>
 
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-[#203D61]">
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-brand-navy">
             {value}
           </p>
 
           {description && (
-            <p className="mt-2 text-xs leading-5 text-slate-500">
+            <p className="mt-2 text-xs leading-5 text-neutral-500">
               {description}
             </p>
           )}

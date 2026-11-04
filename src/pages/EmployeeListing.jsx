@@ -99,22 +99,22 @@ const initialEmployees = [
 ];
 
 const filterClass =
-  "min-w-0 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-700 outline-none transition focus:border-[#0D9999] focus:ring-4 focus:ring-[#0D9999]/10";
+  "min-w-0 w-full rounded-xl border border-border-default bg-white px-3.5 py-3 text-sm text-text-secondary outline-none transition focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10";
 
 function SummaryCard({ title, value, icon: Icon, tone }) {
   const tones = {
-    navy: "bg-blue-50 text-[#203D61]",
-    teal: "bg-[#E8F7F6] text-[#087F80]",
-    green: "bg-emerald-50 text-emerald-700",
-    red: "bg-rose-50 text-rose-600",
+    navy: "bg-info-soft text-brand-navy",
+    teal: "bg-brand-teal-soft text-brand-teal-dark",
+    green: "bg-success-soft text-success-dark",
+    red: "bg-danger-soft text-danger",
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5">
+    <div className="rounded-2xl border border-border-default/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-[#203D61]">
+          <p className="text-sm font-medium text-neutral-500">{title}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-brand-navy">
             {value}
           </p>
         </div>
@@ -266,19 +266,19 @@ export default function EmployeeListing() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
+    <div className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
       {/* Page heading */}
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <div className="mb-2 text-xs font-medium text-slate-500">
+          <div className="mb-2 text-xs font-medium text-neutral-500">
             Trigvent / Human Resources / Employee Listing
           </div>
 
-          <h1 className="text-2xl font-semibold tracking-tight text-[#203D61] sm:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl">
             Employee Listing
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-neutral-500">
             Manage employee and intern records from one place.
           </p>
         </div>
@@ -286,7 +286,7 @@ export default function EmployeeListing() {
         <button
           type="button"
           onClick={resetFilters}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-border-default bg-white px-4 py-2.5 text-sm font-semibold text-neutral-600 transition hover:bg-surface-subtle sm:self-auto"
         >
           <RotateCcw size={16} />
           Reset filters
@@ -302,13 +302,13 @@ export default function EmployeeListing() {
       </div>
 
       {/* Listing panel */}
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div className="border-b border-slate-100 p-4 sm:p-5">
+      <section className="overflow-hidden rounded-2xl border border-border-default/80 bg-white shadow-sm">
+        <div className="border-b border-border-light p-4 sm:p-5">
           <div className="mb-4">
-            <h2 className="text-base font-semibold text-[#203D61]">
+            <h2 className="text-base font-semibold text-brand-navy">
               All employee records
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-neutral-500">
               Search, filter and manage your workforce.
             </p>
           </div>
@@ -368,7 +368,7 @@ export default function EmployeeListing() {
             <div className="relative min-w-0 flex-1">
               <Search
                 size={18}
-                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
               />
 
               <input
@@ -379,12 +379,12 @@ export default function EmployeeListing() {
                   setPage(1);
                 }}
                 placeholder="Search by name, employee ID, email or department..."
-                className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#0D9999] focus:ring-4 focus:ring-[#0D9999]/10"
+                className="w-full rounded-xl border border-border-default bg-white py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-neutral-400 focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10"
               />
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="whitespace-nowrap text-sm text-slate-500">
+              <span className="whitespace-nowrap text-sm text-neutral-500">
                 Show
               </span>
 
@@ -394,7 +394,7 @@ export default function EmployeeListing() {
                   setPageSize(event.target.value);
                   setPage(1);
                 }}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 outline-none focus:border-[#0D9999]"
+                className="rounded-xl border border-border-default bg-white px-3 py-3 text-sm text-text-secondary outline-none focus:border-brand-teal"
                 aria-label="Rows per page"
               >
                 <option value="10">10</option>
@@ -420,24 +420,24 @@ export default function EmployeeListing() {
 
       {/* Delete confirmation */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-navy-dark/40 p-4 backdrop-blur-sm">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-title"
             className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger-soft text-danger">
               <UserX size={23} />
             </div>
 
-            <h2 id="delete-title" className="mt-4 text-lg font-semibold text-[#203D61]">
+            <h2 id="delete-title" className="mt-4 text-lg font-semibold text-brand-navy">
               Delete employee?
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-500">
+            <p className="mt-2 text-sm leading-6 text-neutral-500">
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-text-secondary">
                 {deleteTarget.name}
               </span>
               ? This will remove the record from this UI's local state.
@@ -447,7 +447,7 @@ export default function EmployeeListing() {
               <button
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                className="rounded-xl border border-border-default px-4 py-2.5 text-sm font-semibold text-neutral-600 hover:bg-surface-subtle"
               >
                 Cancel
               </button>
@@ -455,7 +455,7 @@ export default function EmployeeListing() {
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+                className="rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white hover:bg-danger-dark"
               >
                 Delete record
               </button>

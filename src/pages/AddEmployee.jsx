@@ -221,20 +221,20 @@ function StepNavigation({ activeStep, onStepClick }) {
             className={`flex min-w-0 items-center gap-2.5 rounded-xl
               border px-3 py-3 text-left transition sm:px-4 ${
                 active
-                  ? "border-[#0D9999] bg-[#E8F7F6] text-[#087F80]"
+                  ? "border-brand-teal bg-brand-teal-soft text-brand-teal-dark"
                   : completed
-                    ? "border-teal-100 bg-teal-50/50 text-teal-700"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                    ? "border-brand-teal-light-soft bg-brand-teal-soft/50 text-brand-teal-dark"
+                    : "border-border-default bg-white text-neutral-500 hover:border-border-strong"
               }`}
           >
             <span
               className={`flex h-9 w-9 shrink-0 items-center
                 justify-center rounded-lg ${
                   active
-                    ? "bg-[#0D9999] text-white"
+                    ? "bg-brand-teal text-white"
                     : completed
-                      ? "bg-teal-100 text-teal-700"
-                      : "bg-slate-100 text-slate-500"
+                      ? "bg-brand-teal-light-soft text-brand-teal-dark"
+                      : "bg-surface-muted text-neutral-500"
                 }`}
             >
               {completed ? <Check size={18} /> : <Icon size={18} />}
@@ -363,7 +363,7 @@ export default function AddEmployee() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] px-4 pb-8
+    <div className="min-h-screen bg-page px-4 pb-8
       pt-20 sm:px-6 sm:pt-20 lg:px-8 lg:pt-8"
     >
       {/* Page heading */}
@@ -372,59 +372,59 @@ export default function AddEmployee() {
       >
         <div>
           <div className="mb-2 flex items-center gap-2
-            text-xs font-medium text-slate-500"
+            text-xs font-medium text-neutral-500"
           >
             <span>Trigvent</span>
-            <span className="text-slate-300">/</span>
+            <span className="text-neutral-300">/</span>
             <span>Human Resources</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-[#0D9999]">Add Employee</span>
+            <span className="text-neutral-300">/</span>
+            <span className="text-brand-teal">Add Employee</span>
           </div>
 
           <h1 className="text-2xl font-semibold tracking-tight
-            text-[#203D61] sm:text-3xl"
+            text-brand-navy sm:text-3xl"
           >
             Employee Management
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-neutral-500">
             Create a new employee record and manage their details.
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start rounded-xl
-          border border-slate-200 bg-white px-3.5 py-2.5
-          text-xs font-medium text-slate-600 shadow-sm sm:self-auto"
+          border border-border-default bg-white px-3.5 py-2.5
+          text-xs font-medium text-neutral-600 shadow-sm sm:self-auto"
         >
-          <ShieldCheck size={17} className="text-[#0D9999]" />
+          <ShieldCheck size={17} className="text-brand-teal" />
           Employee information
         </div>
       </header>
 
       {/* Form container */}
       <div className="overflow-hidden rounded-2xl border
-        border-slate-200/80 bg-white shadow-sm"
+        border-border-default/80 bg-white shadow-sm"
       >
         {/* Progress header */}
-        <div className="border-b border-slate-200 bg-white p-4 sm:p-6">
+        <div className="border-b border-border-default bg-white p-4 sm:p-6">
           <StepNavigation
             activeStep={activeStep}
             onStepClick={goToStep}
           />
 
           <div className="mt-5 flex items-center justify-between">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-neutral-500">
               Step {activeStep + 1} of {steps.length}
             </p>
 
-            <p className="text-xs font-medium text-[#087F80]">
+            <p className="text-xs font-medium text-brand-teal-dark">
               {Math.round(((activeStep + 1) / steps.length) * 100)}% complete
             </p>
           </div>
 
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-muted">
             <div
-              className="h-full rounded-full bg-[#0D9999] transition-all duration-300"
+              className="h-full rounded-full bg-brand-teal transition-all duration-300"
               style={{
                 width: `${((activeStep + 1) / steps.length) * 100}%`,
               }}
@@ -594,9 +594,9 @@ export default function AddEmployee() {
 
                 <div>
                   <label htmlFor="password"
-                    className="mb-2 block text-sm font-medium text-slate-700"
+                    className="mb-2 block text-sm font-medium text-text-secondary"
                   >
-                    Password <span className="text-rose-500">*</span>
+                    Password <span className="text-danger">*</span>
                   </label>
 
                   <div className="relative">
@@ -609,11 +609,11 @@ export default function AddEmployee() {
                       placeholder="Minimum 8 characters"
                       autoComplete="new-password"
                       className={`w-full rounded-xl border bg-white
-                        px-3.5 py-2.5 pr-11 text-sm text-slate-700
-                        outline-none transition placeholder:text-slate-400
-                        focus:border-[#0D9999] focus:ring-4
-                        focus:ring-[#0D9999]/10 ${
-                          errors.password ? "border-rose-400" : "border-slate-200"
+                        px-3.5 py-2.5 pr-11 text-sm text-text-secondary
+                        outline-none transition placeholder:text-neutral-400
+                        focus:border-brand-teal focus:ring-4
+                        focus:ring-brand-teal/10 ${
+                          errors.password ? "border-danger" : "border-border-default"
                         }`}
                     />
 
@@ -622,35 +622,35 @@ export default function AddEmployee() {
                       onClick={() => setShowPassword((value) => !value)}
                       aria-label={showPassword ? "Hide password" : "Show password"}
                       className="absolute right-3 top-1/2
-                        -translate-y-1/2 text-slate-400
-                        hover:text-slate-700"
+                        -translate-y-1/2 text-neutral-400
+                        hover:text-text-secondary"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
 
                   {errors.password && (
-                    <p className="mt-1.5 text-xs text-rose-600">
+                    <p className="mt-1.5 text-xs text-danger">
                       {errors.password}
                     </p>
                   )}
 
-                  <p className="mt-1.5 text-xs text-slate-400">
+                  <p className="mt-1.5 text-xs text-neutral-400">
                     Use at least 8 characters.
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-teal-100
-                  bg-teal-50/70 p-4 md:col-span-2"
+                <div className="rounded-xl border border-brand-teal-light-soft
+                  bg-brand-teal-soft/70 p-4 md:col-span-2"
                 >
                   <div className="flex items-start gap-3">
                     <ShieldCheck size={20}
-                      className="mt-0.5 shrink-0 text-[#087F80]" />
+                      className="mt-0.5 shrink-0 text-brand-teal-dark" />
                     <div>
-                      <p className="text-sm font-semibold text-[#203D61]">
+                      <p className="text-sm font-semibold text-brand-navy">
                         Account security
                       </p>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">
+                      <p className="mt-1 text-sm leading-6 text-neutral-600">
                         In production, create accounts through your secure
                         backend. Never store plaintext passwords or expose
                         them in logs.
@@ -712,10 +712,10 @@ export default function AddEmployee() {
                 </FormSection>
 
                 <div className="flex items-start gap-3 rounded-xl
-                  border border-amber-200 bg-amber-50 p-4"
+                  border border-warning-soft bg-warning-soft p-4"
                 >
-                  <Info size={19} className="mt-0.5 shrink-0 text-amber-700" />
-                  <p className="text-sm leading-6 text-amber-800">
+                  <Info size={19} className="mt-0.5 shrink-0 text-warning-dark" />
+                  <p className="text-sm leading-6 text-warning-dark">
                     Bank account and identity information is sensitive.
                     Restrict access and transmit it securely to your backend.
                     Avoid storing these values in browser logs or unsecured storage.
@@ -746,11 +746,11 @@ export default function AddEmployee() {
                           placeholder={`Enter note ${index + 1}...`}
                           aria-label={`Employee note ${index + 1}`}
                           className="min-w-0 flex-1 resize-y
-                            rounded-xl border border-slate-200
-                            px-4 py-3 text-sm text-slate-700
-                            outline-none transition placeholder:text-slate-400
-                            focus:border-[#0D9999] focus:ring-4
-                            focus:ring-[#0D9999]/10"
+                            rounded-xl border border-border-default
+                            px-4 py-3 text-sm text-text-secondary
+                            outline-none transition placeholder:text-neutral-400
+                            focus:border-brand-teal focus:ring-4
+                            focus:ring-brand-teal/10"
                         />
 
                         {form.notes.length > 1 && (
@@ -759,8 +759,8 @@ export default function AddEmployee() {
                             onClick={() => removeNote(index)}
                             aria-label={`Remove note ${index + 1}`}
                             className="mt-2 rounded-lg p-2
-                              text-slate-400 transition
-                              hover:bg-rose-50 hover:text-rose-600"
+                              text-neutral-400 transition
+                              hover:bg-danger-soft hover:text-danger"
                           >
                             <X size={18} />
                           </button>
@@ -773,7 +773,7 @@ export default function AddEmployee() {
                       onClick={addNote}
                       className="inline-flex items-center gap-2
                         rounded-lg px-3 py-2 text-sm font-semibold
-                        text-[#087F80] transition hover:bg-[#E8F7F6]"
+                        text-brand-teal-dark transition hover:bg-brand-teal-soft"
                     >
                       <span className="text-lg leading-none">+</span>
                       Add another note
@@ -798,25 +798,25 @@ export default function AddEmployee() {
                     ["Branch", form.branch],
                   ].map(([label, value]) => (
                     <div key={label}
-                      className="rounded-xl border border-slate-100
-                        bg-slate-50/80 p-4"
+                      className="rounded-xl border border-border-light
+                        bg-surface-subtle/80 p-4"
                     >
-                      <p className="text-xs font-medium text-slate-500">
+                      <p className="text-xs font-medium text-neutral-500">
                         {label}
                       </p>
                       <p className="mt-1.5 break-words text-sm
-                        font-semibold text-[#203D61]"
+                        font-semibold text-brand-navy"
                       >
                         {value || "Not provided"}
                       </p>
                     </div>
                   ))}
 
-                  <div className="rounded-xl bg-amber-50 p-4 md:col-span-2">
-                    <p className="text-sm font-semibold text-amber-800">
+                  <div className="rounded-xl bg-warning-soft p-4 md:col-span-2">
+                    <p className="text-sm font-semibold text-warning-dark">
                       Before submitting
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-amber-700">
+                    <p className="mt-1 text-sm leading-6 text-warning-dark">
                       Confirm that the information is accurate and that
                       sensitive employee details will be handled securely.
                     </p>
@@ -828,8 +828,8 @@ export default function AddEmployee() {
             {/* Submission feedback */}
             {successMessage && (
               <div role="status"
-                className="rounded-xl border border-teal-200
-                  bg-teal-50 p-4 text-sm leading-6 text-teal-800"
+                className="rounded-xl border border-brand-teal-soft
+                  bg-brand-teal-soft p-4 text-sm leading-6 text-brand-teal-dark"
               >
                 {successMessage}
               </div>
@@ -837,7 +837,7 @@ export default function AddEmployee() {
 
             {/* Footer actions */}
             <div className="flex flex-col-reverse justify-between
-              gap-3 border-t border-slate-100 pt-5 sm:flex-row
+              gap-3 border-t border-border-light pt-5 sm:flex-row
               sm:items-center"
             >
               <button
@@ -851,9 +851,9 @@ export default function AddEmployee() {
                   }
                 }}
                 className="inline-flex items-center justify-center
-                  gap-2 rounded-xl border border-slate-200
+                  gap-2 rounded-xl border border-border-default
                   bg-white px-5 py-3 text-sm font-semibold
-                  text-slate-600 transition hover:bg-slate-50"
+                  text-neutral-600 transition hover:bg-surface-subtle"
               >
                 <ArrowLeft size={17} />
                 {activeStep === 0 ? "Cancel" : "Previous"}
@@ -864,11 +864,11 @@ export default function AddEmployee() {
                   type="button"
                   onClick={() => goToStep(activeStep + 1)}
                   className="inline-flex items-center justify-center
-                    gap-2 rounded-xl bg-[#0D9999] px-5 py-3
+                    gap-2 rounded-xl bg-brand-teal px-5 py-3
                     text-sm font-semibold text-white shadow-sm
-                    transition hover:bg-[#087F80]
+                    transition hover:bg-brand-teal-dark
                     focus:outline-none focus:ring-4
-                    focus:ring-[#0D9999]/20"
+                    focus:ring-brand-teal/20"
                 >
                   Continue to {steps[activeStep + 1].label}
                   <ArrowRight size={17} />
@@ -878,9 +878,9 @@ export default function AddEmployee() {
                   type="button"
                   onClick={() => setReviewOpen(true)}
                   className="inline-flex items-center justify-center
-                    gap-2 rounded-xl bg-[#0D9999] px-5 py-3
+                    gap-2 rounded-xl bg-brand-teal px-5 py-3
                     text-sm font-semibold text-white shadow-sm
-                    transition hover:bg-[#087F80]"
+                    transition hover:bg-brand-teal-dark"
                 >
                   <Save size={17} />
                   Save Employee
@@ -894,28 +894,28 @@ export default function AddEmployee() {
       {/* Confirmation dialog */}
       {reviewOpen && (
         <div className="fixed inset-0 z-[70] flex items-center
-          justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+          justify-center bg-navy-dark/40 p-4 backdrop-blur-sm"
         >
           <div role="dialog" aria-modal="true"
             aria-labelledby="confirm-title"
             className="w-full max-w-md rounded-2xl border
-              border-slate-200 bg-white p-6 shadow-2xl"
+              border-border-default bg-white p-6 shadow-2xl"
           >
             <div className="flex h-12 w-12 items-center
-              justify-center rounded-xl bg-[#E8F7F6] text-[#0D9999]"
+              justify-center rounded-xl bg-brand-teal-soft text-brand-teal"
             >
               <Save size={22} />
             </div>
 
             <h2 id="confirm-title"
-              className="mt-4 text-lg font-semibold text-[#203D61]"
+              className="mt-4 text-lg font-semibold text-brand-navy"
             >
               Save employee details?
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-500">
+            <p className="mt-2 text-sm leading-6 text-neutral-500">
               You are about to submit the employee record for{" "}
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-text-secondary">
                 {`${form.firstName} ${form.lastName}`.trim()}
               </span>
               . Please ensure the information is correct.
@@ -924,9 +924,9 @@ export default function AddEmployee() {
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button type="button"
                 onClick={() => setReviewOpen(false)}
-                className="rounded-xl border border-slate-200
+                className="rounded-xl border border-border-default
                   px-4 py-2.5 text-sm font-semibold
-                  text-slate-600 hover:bg-slate-50"
+                  text-neutral-600 hover:bg-surface-subtle"
               >
                 Go back
               </button>
@@ -938,8 +938,8 @@ export default function AddEmployee() {
                 }}
                 className="inline-flex items-center
                   justify-center gap-2 rounded-xl
-                  bg-[#0D9999] px-4 py-2.5 text-sm
-                  font-semibold text-white hover:bg-[#087F80]"
+                  bg-brand-teal px-4 py-2.5 text-sm
+                  font-semibold text-white hover:bg-brand-teal-dark"
               >
                 <Check size={17} />
                 Confirm

@@ -5,13 +5,13 @@ export default function EmployeeStatusBadge({ active }) {
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1
         text-xs font-semibold ${
           active
-            ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
-            : "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200"
+            ? "bg-success-soft text-success-dark ring-1 ring-inset ring-success-soft"
+            : "bg-danger-soft text-danger-dark ring-1 ring-inset ring-danger-soft"
         }`}
     >
       <span
         className={`h-1.5 w-1.5 rounded-full ${
-          active ? "bg-emerald-500" : "bg-rose-500"
+          active ? "bg-success" : "bg-danger-soft0"
         }`}
       />
       {active ? "Active" : "Inactive"}
