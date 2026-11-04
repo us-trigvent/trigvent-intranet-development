@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -9,11 +9,13 @@ import logo from "../assets/trigvent-logo.png";
 import { loginUser } from "../redux/actions/authActions";
 import { clearError } from "../redux/slices/authSlice";
 import { loginValidationSchema } from "../validations/authValidation";
+import { useToast } from "../components/ToastProvider";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const { showToast } = useToast();
 
   const { loading, error } = useSelector((state) => state.auth);
 
@@ -39,12 +41,26 @@ export default function Login() {
 
         await dispatch(loginUser(credentials)).unwrap();
 
+        showToast({
+          type: "success",
+          title: "Login successful",
+          message: "Welcome back! Redirecting to your workspace.",
+        });
+
         // Navigate only after successful API response
         navigate(location.state?.from?.pathname || "/dashboard", {
           replace: true,
         });
       } catch (err) {
         console.error("Login failed:", err);
+        showToast({
+          type: "error",
+          title: "Login failed",
+          message:
+            typeof err === "string"
+              ? err
+              : "Unable to sign in. Please check your credentials and try again.",
+        });
       }
     },
   });
@@ -190,12 +206,12 @@ export default function Login() {
                     Password
                   </label>
 
-                  <button
-                    type="button"
+                  <Link
+                    to="/forgot-password"
                     className="text-xs font-semibold text-brand-teal hover:text-brand-teal-dark"
                   >
                     Forgot password?
-                  </button>
+                  </Link>
 
                 </div>
 
@@ -260,18 +276,6 @@ export default function Login() {
 
               </label>
 
-              {/* API Error */}
-              {error && (
-                <div className="mb-4 rounded-xl border border-danger-soft bg-danger-soft px-4 py-3">
-                  <p className="text-sm font-medium text-danger">
-                    {typeof error === "string"
-                      ? error
-                      : "Unable to sign in. Please try again."}
-                  </p>
-                </div>
-              )}
-
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading || formik.isSubmitting}

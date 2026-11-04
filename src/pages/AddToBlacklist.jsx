@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { ShieldCheck } from "lucide-react";
 
 const initialForm = {
@@ -182,6 +183,7 @@ export default function AddToBlacklist() {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [feedback, setFeedback] = useState("");
+  const [showAadhar, setShowAadhar] = useState(false);
 
   const updateField = (name, value) => {
     setForm((current) => ({
@@ -309,7 +311,27 @@ export default function AddToBlacklist() {
       );
     }
 
-    return (
+    return field.type === "password" ? (
+      <div className="relative">
+        <input
+          type={showAadhar ? "text" : "password"}
+          value={value}
+          disabled={field.disabled}
+          placeholder={field.placeholder || ""}
+          maxLength={12}
+          onChange={(event) => updateField(field.name, event.target.value.replace(/\D/g, "").slice(0, 12))}
+          className={`${inputClass} pr-11`}
+        />
+        <button
+          type="button"
+          onClick={() => setShowAadhar((current) => !current)}
+          aria-label={showAadhar ? "Hide Aadhaar number" : "Show Aadhaar number"}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-brand-navy"
+        >
+          {showAadhar ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+    ) : (
       <input
         type={field.type}
         value={value}

@@ -1,6 +1,6 @@
 
 import { createSlice } from "@reduxjs/toolkit";
-import { loginUser } from "../actions/authActions";
+import { changePassword, loginUser, logoutUser } from "../actions/authActions";
 
 const getStoredSession = () => {
   const storedSession =
@@ -27,6 +27,9 @@ const initialState = {
   loading: false,
   error: null,
   isAuthenticated: Boolean(storedSession?.token),
+  passwordLoading: false,
+  passwordError: null,
+  passwordSuccess: null,
 };
 
 const authSlice = createSlice({
@@ -46,6 +49,11 @@ const authSlice = createSlice({
 
     clearError: (state) => {
       state.error = null;
+    },
+
+    clearPasswordStatus: (state) => {
+      state.passwordError = null;
+      state.passwordSuccess = null;
     },
   },
 
@@ -73,10 +81,53 @@ const authSlice = createSlice({
         state.loading = false;
         state.error =
           action.payload || "Something went wrong.";
+      })
+
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+        state.loading = false;
+        state.error = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem("authSession");
+        sessionStorage.removeItem("authSession");
+      })
+
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.user = null;
+        state.token = null;
+        state.loading = false;
+        state.error = action.payload || "Logout failed.";
+        state.isAuthenticated = false;
+        localStorage.removeItem("authSession");
+        sessionStorage.removeItem("authSession");
+      })
+
+      .addCase(changePassword.pending, (state) => {
+        state.passwordLoading = true;
+        state.passwordError = null;
+        state.passwordSuccess = null;
+      })
+
+      .addCase(changePassword.fulfilled, (state, action) => {
+        state.passwordLoading = false;
+        state.passwordError = null;
+        state.passwordSuccess = action.payload;
+      })
+
+      .addCase(changePassword.rejected, (state, action) => {
+        state.passwordLoading = false;
+        state.passwordError = action.payload || "Password change failed.";
+        state.passwordSuccess = null;
       });
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, clearPasswordStatus } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,208 +1,40 @@
 
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../redux/actions/authActions";
+import { clearPasswordStatus } from "../redux/slices/authSlice";
 import trigventLogo from "../assets/trigvent-logo.png";
+import ChangePasswordDialog from "./ChangePasswordDialog";
+import { sidebarNavigations } from "../utils/sidebarnavigations";
 import {
-  LayoutDashboard,
-  UsersRound,
-  UserRoundPlus,
-  CalendarCheck,
-  Clock,
-  BriefcaseBusiness,
-  ListTodo,
   ChevronDown,
   ChevronUp,
-  UserPlus,
-  UserRound,
-  ShieldBan,
-  CalendarDays,
-  ClipboardList,
-  FileClock,
-  CircleDollarSign,
-  Settings,
   Menu,
   X,
-  Banknote,
-  WalletCards,
-  GraduationCap,
-  CreditCard,
-  ReceiptText,
-  UserSearch,
-  MessageSquareText,
-  Monitor,
-  Building2,
-  Trophy,
-  CalendarRange,
-  Briefcase,
-  Megaphone,
-  PartyPopper,
-  ScrollText,
-  ShieldCheck,
-  CircleUserRound,
-  UploadCloud,
-  CalendarCheck2,
-  ListChecks,
-  ClipboardCheck,
-  Fingerprint,
-  Inbox,
-  FileBarChart,
-  HandCoins,
-  UserCheck,
+  LogOut,
+  KeyRound,
 } from "lucide-react";
-
-const navigation = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    path: "/dashboard",
-  },
-  {
-    title: "Employee Directory",
-    icon: UsersRound,
-    path: "/employees",
-  },
-  {
-    title: "Human Resource",
-    icon: UserRoundPlus,
-    children: [
-      { title: "Add Employee", icon: UserPlus, path: "/hr/add-employee" },
-      { title: "Add Intern", icon: UserRound, path: "/hr/add-intern" },
-      { title: "Employee Listing", icon: UsersRound, path: "/hr/employee-listing" },
-      { title: "Released Employees", icon: UserRound, path: "/hr/released-employees" },
-      { title: "Add to Blacklist", icon: ShieldBan, path: "/hr/add-to-blacklist" },
-      { title: "Blacklist Listing", icon: ClipboardList, path: "/hr/blacklist-listing" },
-    ],
-  },
-  {
-    title: "Leave Management",
-    icon: CalendarCheck,
-    path: "/leaves",
-    children: [
-      { title: "Add Leaves", icon: CalendarDays, path: "/leaves/add" },
-      { title: "Leaves Listing", icon: ClipboardList, path: "/leaves/listing" },
-      { title: "Add Comp Off Credit", icon: CircleDollarSign, path: "/leaves/add-comp-off" },
-      { title: "Comp Off Records", icon: FileClock, path: "/leaves/comp-off-records" },
-      { title: "Accrued Leaves Log", icon: Clock, path: "/leaves/accrued-log" },
-    ],
-  },
-  {
-    title: "Attendance",
-    icon: CalendarCheck2,
-    path: "/attendance",
-    children: [
-      { title: "Add Attendance", icon: UserCheck, path: "/attendance/add" },
-      { title: "Upload Attendance", icon: UploadCloud, path: "/attendance/upload" },
-      { title: "View Attendance", icon: ClipboardCheck, path: "/attendance/view" },
-    ],
-  },
-  {
-    title: "Projects",
-    icon: BriefcaseBusiness,
-    path: "/projects",
-    children: [
-      { title: "Project Listing", icon: ClipboardList, path: "/projects/listing" },
-      { title: "Add Project", icon: UserPlus, path: "/projects/add" },
-    ],
-  },
-
-  {
-    title: "Tasks",
-    icon: ListTodo,
-    path: "/tasks",
-    children: [
-      { title: "Task Listing", icon: ClipboardList, path: "/tasks/listing" },
-      { title: "Add Task", icon: UserPlus, path: "/tasks/add" },
-      { title: "My Task", icon: ListChecks, path: "/tasks/my" },
-      { title: "Task Requests", icon: Inbox, path: "/tasks/request" },
-      { title: "DSR Reports", icon: FileBarChart, path: "/tasks/reports" },
-    ],
-  },
-   {
-    title: "Financial",
-    icon: WalletCards,
-    path: "/financial",
-    children: [
-      { title: "Add Loan", icon: HandCoins, path: "/financial/add-loan" },
-      { title: "Loan Listings", icon: Banknote, path: "/financial/loan-listings" },
-      { title: "Pay Slips", icon: ReceiptText, path: "/financial/pay-slips" },
-      { title: "PaySlips Setting", icon: Settings, path: "/financial/payslips-settings" },
-    ],
-  },
-   {
-    title: "Training",
-    icon: GraduationCap,
-    path: "/training",
-    children: [
-      { title: "Add Trainee", icon: UserRoundPlus, path: "/trainee/add-trainee" },
-      { title: "Trainee Listing", icon: UserPlus, path: "/trainee/trainee-listing" },
-      { title: "Add Payment", icon: CreditCard, path: "/trainee/add-payment" },
-      { title: "Payment Logs", icon: ReceiptText, path: "/trainee/payment-logs" },
-    ],
-  },
-   {
-    title: "Recruitment",
-    icon: UserSearch,
-    path: "/recruitment",
-    children: [
-      { title: "Add Interview", icon: CalendarCheck, path: "/recruitment/add-interview" },
-      { title: "Interview Listing", icon: ClipboardList, path: "/recruitment/recruitment-listing" },
-    ],
-  },
-   {
-    title: "Feedback",
-    icon: MessageSquareText,
-    path: "/feedback",
-    children: [
-      { title: "Feedback Listing", icon: ClipboardList, path: "/feedback/feedback-listing" },
-    ],
-  },
-     {
-    title: "IT Management",
-    icon: Monitor,
-    path: "/it",
-    children: [
-      { title: "Add Device", icon: Monitor, path: "/it/add-device" },
-      { title: "Device Listing", icon: ListChecks, path: "/it/device-listing" },
-    ],
-  },
-     {
-    title: "Company Settings",
-    icon: Building2,
-    path: "/settings",
-    children: [
-      { title: "Employee of the Month", icon: Trophy, path: "/settings/eom" },
-      { title: "Device Listing", icon: Monitor, path: "/settings/iow" },
-      { title: "Upcoming Events", icon: CalendarRange, path: "/settings/upcoming-events" },
-      { title: "Job Openings", icon: Briefcase, path: "/settings/job-openings" },
-      { title: "Announcements", icon: Megaphone, path: "/settings/announcements" },
-      { title: "Celebrations", icon: PartyPopper, path: "/settings/celebrations" },
-      { title: "Holidays", icon: CalendarDays, path: "/settings/holidays" },
-
-    ],
-  },
-       {
-    title: "Administration",
-    icon: ShieldCheck,
-    path: "/administration",
-    children: [
-      { title: "Activity Logs", icon: ScrollText, path: "/administration/activity-logs" },
-      { title: "Manage Roles", icon: ShieldCheck, path: "/administration/manage-roles" },
-    ],
-  },
-       {
-    title: "Profile",
-    icon: CircleUserRound,
-    path: "/profile",
-    children: [
-      { title: "My Profile", icon: CircleUserRound, path: "/profile/my-profile" },
-    ],
-  },
-];
 
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const activeItem = navigation
+  const dispatch = useDispatch();
+  const {
+    user,
+    loading: loggingOut,
+  } = useSelector((state) => state.auth);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const userName = user?.name || "Priya Sharma";
+  const userRole = user?.role_label || "HR Manager";
+  const initials = userName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const activeItem = sidebarNavigations
     .flatMap((item) => [item, ...(item.children || [])])
     .find((item) => item.path === location.pathname)?.title;
 
@@ -221,6 +53,12 @@ export default function Sidebar() {
   const handleNavigation = (path) => {
     navigate(path);
     setMobileOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser()).unwrap().catch(() => undefined);
+    setLogoutDialogOpen(false);
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -268,7 +106,7 @@ export default function Sidebar() {
         [scrollbar-thin]
         [scrollbar-color:#426080_transparent]">
           <ul className="space-y-1.5">
-            {navigation.map((item) => {
+            {sidebarNavigations.map((item) => {
               const Icon = item.icon;
 
               const isExpanded =
@@ -374,43 +212,88 @@ export default function Sidebar() {
         {/* Bottom Section */}
         <div className="shrink-0 border-t border-white/10 p-4">
           <button
-            onClick={() => handleNavigation("/settings")}
+            type="button"
+            onClick={() => {
+              dispatch(clearPasswordStatus());
+              setPasswordDialogOpen(true);
+            }}
             className={`flex w-full items-center gap-3
-            rounded-xl px-3 py-3 text-sm transition-colors ${
-              activeItem === "Settings"
-                ? "bg-navy-muted text-white"
-                : "text-neutral-300 hover:bg-navy-light hover:text-white"
-            }`}
+            rounded-xl px-3 py-3 text-sm text-neutral-300 transition-colors hover:bg-navy-light hover:text-white`}
           >
-            <Settings size={20} />
-            <span>Settings</span>
+            <KeyRound size={20} />
+            <span>Change Password</span>
           </button>
 
           {/* Logged-in User */}
-          <div className="mt-3 flex items-center gap-3
+          <button
+            type="button"
+            onClick={() => setLogoutDialogOpen(true)}
+            disabled={loggingOut}
+            className="mt-3 flex w-full items-center gap-3
           rounded-xl bg-navy-light/70 p-3">
             <div className="flex h-10 w-10 shrink-0
             items-center justify-center rounded-full
             bg-brand-teal-light text-sm font-semibold text-white">
-              PS
+              {initials}
             </div>
 
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-white">
-                Priya Sharma
+                {userName}
               </p>
 
               <p className="text-xs text-neutral-300">
-                HR Manager
+                {userRole}
               </p>
             </div>
-            <ChevronDown
-              size={16}
-              className="text-neutral-300"
-            />
-          </div>
+            <LogOut size={18} className="shrink-0 text-neutral-300" />
+          </button>
         </div>
       </aside>
+
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        onClose={() => setPasswordDialogOpen(false)}
+      />
+
+      {logoutDialogOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="logout-title"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-danger-soft text-danger">
+              <LogOut size={21} />
+            </div>
+            <h2 id="logout-title" className="mt-4 text-lg font-semibold text-brand-navy">
+              Log out of intranet?
+            </h2>
+            <p className="mt-2 text-sm text-neutral-500">
+              Your current session will be ended on this device.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setLogoutDialogOpen(false)}
+                disabled={loggingOut}
+                className="rounded-xl border border-border-default px-4 py-2.5 text-sm font-medium text-text-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="rounded-xl bg-danger px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+              >
+                {loggingOut ? "Logging out..." : "Log out"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

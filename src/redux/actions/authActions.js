@@ -39,3 +39,45 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await axiosInstance.post("/auth/logout");
+      return true;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Logout failed. Please try again."
+      );
+    }
+  }
+);
+
+export const changePassword = createAsyncThunk(
+  "auth/changePassword",
+  async (
+    { oldPassword, password, passwordConfirmation },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.post("/auth/change-password", {
+        old_password: oldPassword,
+        password,
+        password_confirmation: passwordConfirmation,
+      });
+
+      return response.data?.message || "Password changed successfully.";
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Password change failed. Please try again."
+      );
+    }
+  }
+);

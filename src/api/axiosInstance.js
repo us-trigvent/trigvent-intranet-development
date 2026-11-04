@@ -10,4 +10,25 @@ const axiosInstance = axios.create({
   timeout: 15000,
 });
 
+axiosInstance.interceptors.request.use((config) => {
+  const storedSession =
+    localStorage.getItem("authSession") ||
+    sessionStorage.getItem("authSession");
+
+  if (storedSession) {
+    try {
+      const session = JSON.parse(storedSession);
+      if (session?.token) {
+        config.headers.Authorization =
+          `${session.tokenType || "Bearer"} ${session.token}`;
+      }
+    } catch {
+      localStorage.removeItem("authSession");
+      sessionStorage.removeItem("authSession");
+    }
+  }
+
+  return config;
+});
+
 export default axiosInstance;

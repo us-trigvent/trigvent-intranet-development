@@ -36,12 +36,17 @@ import AddDevice from "../pages/AddDevice";
 import ManageRoles from "../pages/ManageRoles";
 import Profile from "../pages/Profile";
 import Login from "../pages/Login";
+import ForgotPassword from "../pages/ForgotPassword";
 import PlaceholderPage from "../pages/PlaceholderPage";
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
   },
   {
     path: "/",
