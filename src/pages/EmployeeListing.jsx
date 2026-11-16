@@ -1,106 +1,36 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  Search,
   Users,
   UserCheck,
   UserX,
   GraduationCap,
-  RotateCcw,
 } from "lucide-react";
 
 import EmployeeTable from "../components/employee-form/employee-listing/EmployeeTable";
-import DeleteConfirmationDialog from "../components/common/DeleteConfirmationDialog";
+import {
+  fetchEmployees,
+  updateEmployeeTrainer,
+} from "../redux/actions/employeeActions";
+import { useToast } from "../components/ToastProvider";
+import { normalizeEmployee } from "../utils/employeeListingUtils";
 
-const initialEmployees = [
-  {
-    id: 87564,
-    employeeCode: "87564",
-    name: "A B",
-    email: "qualityanalyst8295@gmail.com",
-    role: "Employee",
-    department: "Management",
-    workType: "Onsite",
-    active: false,
-    isTrainer: false,
-    type: "Employee",
-  },
-  {
-    id: 5345355,
-    employeeCode: "5345355",
-    name: "Admin",
-    email: "nitinsaluja@trigvent.com",
-    role: "Super-Admin",
-    department: "Miscellaneous",
-    workType: "Onsite",
-    active: true,
-    isTrainer: false,
-    type: "Employee",
-  },
-  {
-    id: 6,
-    employeeCode: "6",
-    name: "Harpreet Singh",
-    email: "harpreet@trigvent.com",
-    role: "HR",
-    department: "Sales & Marketing",
-    workType: "Onsite",
-    active: true,
-    isTrainer: true,
-    type: "Employee",
-  },
-  {
-    id: 5,
-    employeeCode: "5",
-    name: "John Carter",
-    email: "john.carter@trigvent.com",
-    role: "Employee",
-    department: "Mobile Development",
-    workType: "Remote",
-    active: true,
-    isTrainer: false,
-    type: "Employee",
-  },
-  {
-    id: 62,
-    employeeCode: "62",
-    name: "Kaim Chawla",
-    email: "kamakshi+895@trigvent.com",
-    role: "HR",
-    department: "Quality Assurance",
-    workType: "Remote",
-    active: true,
-    isTrainer: false,
-    type: "Employee",
-  },
-  {
-    id: 703,
-    employeeCode: "703",
-    name: "New Intern",
-    email: "intern@gmail.com",
-    role: "Intern",
-    department: "Business Development",
-    workType: "Onsite",
-    active: true,
-    isTrainer: false,
-    type: "Intern",
-  },
-  {
-    id: 98765,
-    employeeCode: "98765",
-    name: "Office Admin",
-    email: "officeadmin@trigvent.com",
-    role: "Employee",
-    department: "Management",
-    workType: "Onsite",
-    active: true,
-    isTrainer: false,
-    type: "Employee",
-  },
+const sortableFields = [
+  "id",
+  "name",
+  "email",
+  "employee_code",
+  "created_at",
+  "joining_date",
 ];
 
-const filterClass =
-  "min-w-0 w-full rounded-xl border border-border-default bg-white px-3.5 py-3 text-sm text-text-secondary outline-none transition focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10";
+const readPositiveInteger = (value, fallback) => {
+  const parsedValue = Number.parseInt(value, 10);
+  return Number.isInteger(parsedValue) && parsedValue > 0
+    ? parsedValue
+    : fallback;
+};
 
 function SummaryCard({ title, value, icon: Icon, tone }) {
   const tones = {
@@ -111,7 +41,7 @@ function SummaryCard({ title, value, icon: Icon, tone }) {
   };
 
   return (
-    <div className="rounded-2xl border border-border-default/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5">
+    <div className="rounded-2xl border border-border-default/80 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-neutral-500">{title}</p>
@@ -119,7 +49,6 @@ function SummaryCard({ title, value, icon: Icon, tone }) {
             {value}
           </p>
         </div>
-
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tones[tone]}`}>
           <Icon size={21} />
         </div>
@@ -129,310 +58,236 @@ function SummaryCard({ title, value, icon: Icon, tone }) {
 }
 
 export default function EmployeeListing() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    records,
+    pagination,
+    loading,
+    error,
+    trainerUpdating,
+  } = useSelector((state) => state.employees);
+  const page = readPositiveInteger(searchParams.get("page"), 1);
+  const pageSize = readPositiveInteger(searchParams.get("per_page"), 25);
+  const search = searchParams.get("search")?.trim() || "";
+  const employeeStatus =
+    searchParams.get("archived") === "1"
+      ? "archived"
+      : searchParams.get("status") === "1"
+        ? "active"
+        : "all";
+  const internFilter = searchParams.get("is_intern");
+  const employeeType =
+    internFilter === "1" ? "interns" : internFilter === "0" ? "employees" : "all";
+  const trainerFilter = searchParams.get("is_trainer");
+  const trainerType =
+    trainerFilter === "1"
+      ? "trainers"
+      : trainerFilter === "0"
+        ? "non-trainers"
+        : "all";
+  const requestedSort = searchParams.get("sort_by");
+  const requestedSortOrder = searchParams.get("sort_order");
+  const hasValidSort =
+    sortableFields.includes(requestedSort) &&
+    ["asc", "desc"].includes(requestedSortOrder);
+  const sortBy = hasValidSort ? requestedSort : null;
+  const sortOrder = hasValidSort ? requestedSortOrder : null;
 
-  const [employees, setEmployees] = useState(initialEmployees);
-  const [employeeType, setEmployeeType] = useState("All");
-  const [status, setStatus] = useState("All");
-  const [department, setDepartment] = useState("All");
-  const [workType, setWorkType] = useState("All");
-  const [keyword, setKeyword] = useState("");
-  const [sortBy, setSortBy] = useState("name");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState("10");
-  const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const departments = useMemo(
-    () => [...new Set(employees.map((item) => item.department).filter(Boolean))],
-    [employees]
-  );
-
-  const filteredEmployees = useMemo(() => {
-    const query = keyword.trim().toLowerCase();
-
-    return employees
-      .filter((employee) => {
-        const matchesType =
-          employeeType === "All" || employee.type === employeeType;
-
-        const matchesStatus =
-          status === "All" ||
-          (status === "Active" && employee.active) ||
-          (status === "Inactive" && !employee.active);
-
-        const matchesDepartment =
-          department === "All" || employee.department === department;
-
-        const matchesWorkType =
-          workType === "All" || employee.workType === workType;
-
-        const matchesKeyword =
-          !query ||
-          [
-            employee.name,
-            employee.email,
-            employee.employeeCode,
-            employee.role,
-            employee.department,
-          ].some((value) => String(value || "").toLowerCase().includes(query));
-
-        return (
-          matchesType &&
-          matchesStatus &&
-          matchesDepartment &&
-          matchesWorkType &&
-          matchesKeyword
-        );
-      })
-      .sort((a, b) => {
-        const first = String(a[sortBy] ?? "").toLowerCase();
-        const second = String(b[sortBy] ?? "").toLowerCase();
-
-        const comparison = first.localeCompare(second, undefined, {
-          numeric: true,
-        });
-
-        return sortOrder === "asc" ? comparison : -comparison;
-      });
-  }, [
-    employees,
+  const employeeQuery = useMemo(() => ({
+    page,
+    per_page: pageSize,
+    search: search || undefined,
+    ...(employeeStatus === "archived"
+      ? { archived: 1 }
+      : employeeStatus === "active"
+        ? { status: 1, archived: 0 }
+        : {}),
+    ...(employeeType === "all"
+      ? {}
+      : { is_intern: employeeType === "interns" ? 1 : 0 }),
+    ...(trainerType === "all"
+      ? {}
+      : { is_trainer: trainerType === "trainers" ? 1 : 0 }),
+    ...(sortBy ? { sort_by: sortBy, sort_order: sortOrder } : {}),
+  }), [
+    employeeStatus,
     employeeType,
-    status,
-    department,
-    workType,
-    keyword,
+    page,
+    pageSize,
+    search,
     sortBy,
     sortOrder,
+    trainerType,
   ]);
 
+  useEffect(() => {
+    dispatch(fetchEmployees(employeeQuery));
+  }, [
+    dispatch,
+    employeeQuery,
+  ]);
+
+  const employees = useMemo(
+    () => records.map(normalizeEmployee),
+    [records]
+  );
   const activeCount = employees.filter((employee) => employee.active).length;
   const inactiveCount = employees.length - activeCount;
-  const internCount = employees.filter((employee) => employee.type === "Intern").length;
+  const internCount = employees.filter((employee) => employee.isIntern).length;
+  const totalCount = Number(pagination?.total || 0);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredEmployees.length / Number(pageSize))
-  );
 
-  const currentPage = Math.min(page, totalPages);
-  const startIndex = (currentPage - 1) * Number(pageSize);
-
-  const paginatedEmployees = filteredEmployees.slice(
-    startIndex,
-    startIndex + Number(pageSize)
-  );
-
-  const updateFilter = (setter) => (event) => {
-    setter(event.target.value);
-    setPage(1);
+  const updateQueryParams = (updates) => {
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === "") {
+          nextParams.delete(key);
+        } else {
+          nextParams.set(key, String(value));
+        }
+      });
+      return nextParams;
+    });
   };
 
-  const resetFilters = () => {
-    setEmployeeType("All");
-    setStatus("All");
-    setDepartment("All");
-    setWorkType("All");
-    setKeyword("");
-    setPage(1);
+  const handleSearch = (value) => {
+    updateQueryParams({
+      search: value.trim(),
+      page: 1,
+    });
   };
 
-  const handleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder((current) => current === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortOrder("asc");
+  const handleFilterChange = (filter, value) => {
+    const updates = { page: 1 };
+
+    if (filter === "status") {
+      updates.status = value === "active" ? 1 : null;
+      updates.archived =
+        value === "all" ? null : value === "archived" ? 1 : 0;
+    } else if (filter === "employeeType") {
+      updates.is_intern =
+        value === "all" ? null : value === "interns" ? 1 : 0;
+    } else if (filter === "trainerType") {
+      updates.is_trainer =
+        value === "all" ? null : value === "trainers" ? 1 : 0;
+    }
+
+    updateQueryParams(updates);
+  };
+
+  const handleTrainerChange = async (employee, isTrainer) => {
+    try {
+      const response = await dispatch(
+        updateEmployeeTrainer({ employeeId: employee.id, isTrainer })
+      ).unwrap();
+      showToast({
+        type: "success",
+        title: "Trainer status updated",
+        message:
+          response?.message || "The employee's trainer status was updated.",
+      });
+      dispatch(fetchEmployees(employeeQuery));
+    } catch (message) {
+      showToast({
+        type: "error",
+        title: "Unable to update trainer status",
+        message: message || "Please try again.",
+      });
     }
   };
 
-  const handleToggleTrainer = (employee) => {
-    setEmployees((current) =>
-      current.map((item) =>
-        item.id === employee.id
-          ? { ...item, isTrainer: !item.isTrainer }
-          : item
-      )
-    );
+  const handleSort = (field) => {
+    if (sortBy === field && sortOrder === "desc") {
+      updateQueryParams({
+        sort_by: null,
+        sort_order: null,
+        page: 1,
+      });
+      return;
+    }
+
+    const nextSortOrder = sortBy === field && sortOrder === "asc" ? "desc" : "asc";
+
+    updateQueryParams({
+      sort_by: field,
+      sort_order: nextSortOrder,
+      page: 1,
+    });
   };
 
-  const handleDelete = () => {
-    if (!deleteTarget) return;
+  const handlePageChange = (nextPage) => {
+    updateQueryParams({ page: nextPage });
+  };
 
-    setEmployees((current) =>
-      current.filter((employee) => employee.id !== deleteTarget.id)
-    );
-
-    setDeleteTarget(null);
+  const tablePagination = {
+    page,
+    perPage: pageSize,
+    total: totalCount,
+    onPageChange: handlePageChange,
   };
 
   return (
     <div className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
-      {/* Page heading */}
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="mb-2 text-xs font-medium text-neutral-500">
             Trigvent / Human Resources / Employee Listing
           </div>
-
           <h1 className="text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl">
             Employee Listing
           </h1>
-
           <p className="mt-2 text-sm text-neutral-500">
             Manage employee and intern records from one place.
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={resetFilters}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-border-default bg-white px-4 py-2.5 text-sm font-semibold text-neutral-600 transition hover:bg-surface-subtle sm:self-auto"
-        >
-          <RotateCcw size={16} />
-          Reset filters
-        </button>
       </div>
 
-      {/* Summary cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard title="Total Records" value={employees.length} icon={Users} tone="navy" />
-        <SummaryCard title="Active" value={activeCount} icon={UserCheck} tone="green" />
-        <SummaryCard title="Inactive" value={inactiveCount} icon={UserX} tone="red" />
-        <SummaryCard title="Interns" value={internCount} icon={GraduationCap} tone="teal" />
+        <SummaryCard title="Total Records" value={totalCount} icon={Users} tone="navy" />
+        <SummaryCard title="Active on this page" value={activeCount} icon={UserCheck} tone="green" />
+        <SummaryCard title="Inactive on this page" value={inactiveCount} icon={UserX} tone="red" />
+        <SummaryCard title="Interns on this page" value={internCount} icon={GraduationCap} tone="teal" />
       </div>
 
-      {/* Listing panel */}
-      <section className="overflow-hidden rounded-2xl border border-border-default/80 bg-white shadow-sm">
-        <div className="border-b border-border-light p-4 sm:p-5">
-          <div className="mb-4">
-            <h2 className="text-base font-semibold text-brand-navy">
-              All employee records
-            </h2>
-            <p className="mt-1 text-sm text-neutral-500">
-              Search, filter and manage your workforce.
-            </p>
+      <section className="overflow-hidden rounded-2xl border border-border-default/80 bg-white shadow-sm p-6">
+        {error && (
+          <div className="flex items-center justify-between gap-3 border-b border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">
+            <p role="alert">{error}</p>
+            <button
+              type="button"
+              onClick={() => dispatch(fetchEmployees(employeeQuery))}
+              className="shrink-0 font-semibold underline underline-offset-2"
+            >
+              Retry
+            </button>
           </div>
+        )}
 
-          {/* Filters */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <select
-              value={employeeType}
-              onChange={updateFilter(setEmployeeType)}
-              className={filterClass}
-              aria-label="Filter by employee type"
-            >
-              <option value="All">All employee types</option>
-              <option value="Employee">Employees</option>
-              <option value="Intern">Interns</option>
-            </select>
-
-            <select
-              value={status}
-              onChange={updateFilter(setStatus)}
-              className={filterClass}
-              aria-label="Filter by status"
-            >
-              <option value="All">All statuses</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-
-            <select
-              value={department}
-              onChange={updateFilter(setDepartment)}
-              className={filterClass}
-              aria-label="Filter by department"
-            >
-              <option value="All">All departments</option>
-              {departments.map((item) => (
-                <option key={item} value={item}>{item}</option>
-              ))}
-            </select>
-
-            <select
-              value={workType}
-              onChange={updateFilter(setWorkType)}
-              className={filterClass}
-              aria-label="Filter by work type"
-            >
-              <option value="All">All work types</option>
-              <option value="Onsite">Onsite</option>
-              <option value="Remote">Remote</option>
-              <option value="Hybrid">Hybrid</option>
-              <option value="Internship">Internship</option>
-            </select>
-          </div>
-
-          {/* Search */}
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <div className="relative min-w-0 flex-1">
-              <Search
-                size={18}
-                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
-              />
-
-              <input
-                type="search"
-                value={keyword}
-                onChange={(event) => {
-                  setKeyword(event.target.value);
-                  setPage(1);
-                }}
-                placeholder="Search by name, employee ID, email or department..."
-                className="w-full rounded-xl border border-border-default bg-white py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-neutral-400 focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="whitespace-nowrap text-sm text-neutral-500">
-                Show
-              </span>
-
-              <select
-                value={pageSize}
-                onChange={(event) => {
-                  setPageSize(event.target.value);
-                  setPage(1);
-                }}
-                className="rounded-xl border border-border-default bg-white px-3 py-3 text-sm text-text-secondary outline-none focus:border-brand-teal"
-                aria-label="Rows per page"
-              >
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Reusable table */}
         <EmployeeTable
-          employees={paginatedEmployees}
+          key={search}
+          employees={employees}
+          loading={loading}
+          pagination={tablePagination}
+          onSearch={handleSearch}
+          searchDebounce={400}
+          initialSearchValue={search}
+          employeeStatus={employeeStatus}
+          employeeType={employeeType}
+          trainerType={trainerType}
+          onFilterChange={handleFilterChange}
+          onToggleTrainer={handleTrainerChange}
+          trainerUpdating={trainerUpdating}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSort={handleSort}
           onEdit={(employee) => navigate(`/hr/edit-employee/${employee.id}`)}
           onView={(employee) => navigate(`/hr/employee/${employee.id}`)}
-          onDelete={(employee) => setDeleteTarget(employee)}
-          onToggleTrainer={handleToggleTrainer}
         />
       </section>
-
-      {/* Delete confirmation */}
-      <DeleteConfirmationDialog
-        open={Boolean(deleteTarget)}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDelete}
-        title="Delete employee?"
-        itemName={deleteTarget?.name}
-        description={
-          deleteTarget
-            ? `Are you sure you want to delete "${deleteTarget.name}"? This will remove the employee record.`
-            : ""
-        }
-        confirmLabel="Delete record"
-      />
     </div>
   );
 }
