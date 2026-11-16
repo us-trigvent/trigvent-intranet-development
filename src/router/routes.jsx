@@ -38,6 +38,8 @@ import Profile from "../pages/Profile";
 import Login from "../pages/Login";
 import ForgotPassword from "../pages/ForgotPassword";
 import PlaceholderPage from "../pages/PlaceholderPage";
+import Announcements from "../pages/Announcements";
+import Celebrations from "../pages/Celebrations";
 
 export const router = createBrowserRouter([
   {
@@ -172,6 +174,14 @@ export const router = createBrowserRouter([
       {
         path: "settings",
         element: <Settings />,
+      },
+      {
+        path: "settings/announcements",
+        element: <Announcements />,
+      },
+      {
+        path: "settings/celebrations",
+        element: <Celebrations />,
       },
       {
         path: "*",

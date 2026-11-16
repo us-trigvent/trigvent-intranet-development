@@ -1,6 +1,8 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useFormik } from "formik";
 
 import {
   UserRoundPlus,
@@ -23,6 +25,8 @@ import {
 
 import FormField from "../components/employee-form/FormField";
 import FormSection from "../components/employee-form/FormSection";
+import { useToast } from "../components/ToastProvider";
+import { createEmployee } from "../redux/actions/employeeActions";
 
 const steps = [
   { label: "Personal Details", icon: UserRound },
@@ -34,22 +38,22 @@ const steps = [
 const initialForm = {
   firstName: "",
   lastName: "",
-  fatherName: "",
   dob: "",
-  gender: "Male",
+  gender: "male",
   profileImage: null,
 
   mobile: "",
   alternateNumber: "",
   officialEmail: "",
   personalEmail: "",
-  teamsId: "",
-  linkedIn: "",
 
   permanentAddress: "",
-  temporaryAddress: "",
   state: "",
   city: "",
+  pincode: "",
+  emergencyContactName: "",
+  emergencyContactRelation: "",
+  emergencyContactNumber: "",
 
   department: "",
   designation: "",
@@ -57,12 +61,20 @@ const initialForm = {
   workType: "",
   branch: "Mohali",
   employeeCode: "",
+  role: "",
+  status: "",
+  isArchive: "",
   probationPeriod: "",
   attendanceCode: "",
   cardNumber: "",
-  githubUsername: "",
   backgroundVerification: "",
   receivedRemarks: "",
+  college: "",
+  qualification: "",
+  interviewDate: "",
+  passoutYear: "",
+  pursuingYear: "",
+  previousExperience: "",
 
   loginEmail: "",
   password: "",
@@ -90,43 +102,14 @@ const requiredByStep = {
     ["joiningDate", "Joining date"],
     ["workType", "Work type"],
     ["branch", "Branch"],
-    ["employeeCode", "Employee code"],
     ["cardNumber", "Card number"],
   ],
-  1: [
-    ["loginEmail", "Login email"],
-    ["password", "Password"],
-  ],
+  1: [["loginEmail", "Login email"]],
   2: [
     ["aadhaarNumber", "Aadhaar number"],
     ["panNumber", "PAN number"],
   ],
 };
-
-const departmentOptions = [
-  "Engineering",
-  "Design",
-  "Human Resources",
-  "Sales",
-  "Marketing",
-  "Finance",
-  "QA",
-  "Operations",
-];
-
-const designationOptions = [
-  "Software Engineer",
-  "Senior Software Engineer",
-  "Engineering Manager",
-  "Frontend Developer",
-  "Backend Developer",
-  "UI/UX Designer",
-  "HR Executive",
-  "HR Manager",
-  "Sales Executive",
-  "Marketing Executive",
-  "Intern",
-];
 
 const stateOptions = [
   "Haryana",
@@ -140,26 +123,19 @@ const stateOptions = [
 ];
 
 const workTypeOptions = [
-  "Full Time",
-  "Part Time",
-  "Internship",
-  "Contract",
-  "Remote",
-  "Hybrid",
+  { label: "Remote", value: "remote" },
+  { label: "Onsite", value: "onsite" },
+  { label: "Hybrid", value: "hybrid" },
 ];
 
 const probationOptions = [
-  "Not Applicable",
-  "1 Month",
-  "3 Months",
-  "6 Months",
+  { label: "3 Months", value: "3" },
+  { label: "6 Months", value: "6" },
 ];
 
 const verificationOptions = [
-  "Pending",
-  "In Progress",
-  "Verified",
-  "Rejected",
+  { label: "Yes", value: "Yes" },
+  { label: "No", value: "No" },
 ];
 
 function validateStep(step, form) {
@@ -168,6 +144,65 @@ function validateStep(step, form) {
   for (const [field, label] of requiredByStep[step] || []) {
     if (!String(form[field] ?? "").trim()) {
       errors[field] = `${label} is required.`;
+    }
+  }
+
+  if (step === 0) {
+    const minimumDob = new Date();
+    minimumDob.setFullYear(minimumDob.getFullYear() - 15);
+    if (
+      form.dob &&
+      new Date(form.dob) > minimumDob
+    ) {
+      errors.dob = "Employee must be at least 15 years old.";
+    }
+
+    if (form.mobile && !/^\d{10,15}$/.test(form.mobile)) {
+      errors.mobile = "Enter a valid 10-15 digit mobile number.";
+    }
+
+    if (form.alternateNumber && !/^\d{10,15}$/.test(form.alternateNumber)) {
+      errors.alternateNumber = "Enter a valid 10-15 digit alternate number.";
+    }
+
+    if (form.department && !/^\d+$/.test(form.department)) {
+      errors.department = "Enter a valid department ID.";
+    }
+
+    if (form.designation && !/^\d+$/.test(form.designation)) {
+      errors.designation = "Enter a valid designation ID.";
+    }
+
+    if (form.attendanceCode && !/^\d{1,10}$/.test(form.attendanceCode)) {
+      errors.attendanceCode = "Attendance code must be at most 10 digits.";
+    }
+
+    if (form.cardNumber && !/^\d{1,10}$/.test(form.cardNumber)) {
+      errors.cardNumber = "Card number must be at most 10 digits.";
+    }
+
+    if (
+      form.officialEmail &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.officialEmail)
+    ) {
+      errors.officialEmail = "Enter a valid official email address.";
+    }
+
+    if (form.profileImage) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(form.profileImage.type)) {
+        errors.profileImage = "Choose a JPEG, PNG, or WebP image.";
+      } else if (form.profileImage.size > 2048 * 1024) {
+        errors.profileImage = "Image must be 2048 KB or smaller.";
+      }
+    }
+
+    if (
+      form.dob &&
+      form.joiningDate &&
+      new Date(form.joiningDate) <= new Date(form.dob)
+    ) {
+      errors.joiningDate = "Joining date must be after date of birth.";
     }
   }
 
@@ -191,14 +226,41 @@ function validateStep(step, form) {
     errors.password = "Password must contain at least 8 characters.";
   }
 
-  if (step === 2 && form.aadhaarNumber &&
-      !/^\d{12}$/.test(form.aadhaarNumber)) {
-    errors.aadhaarNumber = "Enter a valid 12-digit Aadhaar number.";
-  }
-
   if (step === 2 && form.panNumber &&
       !/^[A-Z]{5}\d{4}[A-Z]$/.test(form.panNumber.toUpperCase())) {
     errors.panNumber = "Enter a valid PAN format.";
+  }
+
+  if (step === 2 && form.aadhaarNumber && !/^\d{12}$/.test(form.aadhaarNumber)) {
+    errors.aadhaarNumber = "Enter a valid 12-digit Aadhaar number.";
+  }
+
+  if (step === 2 && form.ifscCode && form.ifscCode.length > 11) {
+    errors.ifscCode = "IFSC code must be at most 11 characters.";
+  }
+
+  if (step === 2 && form.accountNumber && form.accountNumber.length > 20) {
+    errors.accountNumber = "Account number must be at most 20 characters.";
+  }
+
+  if (step === 3) {
+    if (form.college.length > 150) {
+      errors.college = "College must be 150 characters or fewer.";
+    }
+    if (form.qualification.length > 100) {
+      errors.qualification = "Qualification must be 100 characters or fewer.";
+    }
+    for (const field of ["passoutYear", "pursuingYear"]) {
+      if (form[field] && !/^\d{4}$/.test(form[field])) {
+        errors[field] = "Enter a 4-digit year.";
+      }
+    }
+    if (
+      form.interviewDate &&
+      Number.isNaN(new Date(form.interviewDate).getTime())
+    ) {
+      errors.interviewDate = "Enter a valid interview date.";
+    }
   }
 
   return errors;
@@ -262,28 +324,110 @@ function StepNavigation({ activeStep, onStepClick }) {
 
 export default function AddEmployee() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
+  const creating = useSelector((state) => state.employees.creating);
 
   const [activeStep, setActiveStep] = useState(0);
-  const [form, setForm] = useState(initialForm);
-  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+
+  const formik = useFormik({
+    initialValues: initialForm,
+    validate: (values) => ({
+      ...validateStep(0, values),
+      ...validateStep(1, values),
+      ...validateStep(2, values),
+      ...validateStep(3, values),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const formData = new FormData();
+        const fields = {
+          is_intern: "false",
+          first_name: values.firstName.trim(),
+          last_name: values.lastName.trim(),
+          email: values.loginEmail.trim(),
+          personal_email_address: values.personalEmail.trim(),
+          official_email_address: values.officialEmail.trim(),
+          dob: values.dob,
+          gender: values.gender,
+          mobile_number: values.mobile,
+          alternate_number: values.alternateNumber,
+          department_id: values.department,
+          designation_id: values.designation,
+          joining_date: values.joiningDate,
+          probation_period: values.probationPeriod,
+          work_type: values.workType,
+          branch: values.branch,
+          employee_code: values.employeeCode.trim(),
+          role: values.role.trim(),
+          status: values.status.trim(),
+          is_archive: values.isArchive,
+          attendance_code: values.attendanceCode,
+          CardNo: values.cardNumber,
+          aadhar_number: values.aadhaarNumber,
+          pan_number: values.panNumber.toUpperCase(),
+          bank_ifsc_code: values.ifscCode.trim(),
+          bank_account_number: values.accountNumber.trim(),
+          bank_name: values.bankName.trim(),
+          bank_account_name: values.accountHolderName.trim(),
+          address: values.permanentAddress.trim(),
+          city: values.city.trim(),
+          state: values.state,
+          pincode: values.pincode,
+          emergency_contact_name: values.emergencyContactName.trim(),
+          emergency_contact_relation: values.emergencyContactRelation.trim(),
+          emergency_contact_number: values.emergencyContactNumber,
+          received_remarks: values.receivedRemarks.trim(),
+          is_background_verification_done: values.backgroundVerification,
+          college: values.college.trim(),
+          qualification: values.qualification.trim(),
+          interview_date: values.interviewDate,
+          passout_year: values.passoutYear,
+          pursuing_year: values.pursuingYear,
+          previous_experience: values.previousExperience.trim(),
+          notes: values.notes.filter(Boolean).join("\n"),
+          password: values.password,
+        };
+
+        Object.entries(fields).forEach(([key, value]) => {
+          if (value !== "" && value !== undefined && value !== null) {
+            formData.append(key, value);
+          }
+        });
+
+        if (values.profileImage) {
+          formData.append("image", values.profileImage);
+        }
+
+        await dispatch(createEmployee(formData)).unwrap();
+        setReviewOpen(false);
+        showToast({
+          type: "success",
+          title: "Employee created",
+          message: "The employee record was created successfully.",
+        });
+        navigate("/hr/employee-listing");
+      } catch (error) {
+        showToast({
+          type: "error",
+          title: "Unable to create employee",
+          message:
+            typeof error === "string"
+              ? error
+              : "Please check the employee details and try again.",
+        });
+      }
+    },
+  });
+
+  const form = formik.values;
+  const errors = formik.errors;
 
   const updateField = (event) => {
     const { name, value, files } = event.target;
-
-    setForm((current) => ({
-      ...current,
-      [name]: files ? files[0] || null : value,
-    }));
-
-    setErrors((current) => ({
-      ...current,
-      [name]: "",
-    }));
-
-    setSuccessMessage("");
+    formik.setFieldValue(name, files ? files[0] || null : value);
   };
 
   const goToStep = (nextStep) => {
@@ -291,7 +435,7 @@ export default function AddEmployee() {
 
     if (nextStep > activeStep) {
       const nextErrors = validateStep(activeStep, form);
-      setErrors(nextErrors);
+      formik.setErrors({ ...formik.errors, ...nextErrors });
 
       if (Object.keys(nextErrors).length > 0) {
         return;
@@ -303,56 +447,44 @@ export default function AddEmployee() {
   };
 
   const addNote = () => {
-    setForm((current) => ({
-      ...current,
-      notes: [...current.notes, ""],
-    }));
+    formik.setFieldValue("notes", [...form.notes, ""]);
   };
 
   const updateNote = (index, value) => {
-    setForm((current) => ({
-      ...current,
-      notes: current.notes.map((note, i) =>
-        i === index ? value : note
-      ),
-    }));
+    formik.setFieldValue(
+      "notes",
+      form.notes.map((note, i) => (i === index ? value : note))
+    );
   };
 
   const removeNote = (index) => {
-    setForm((current) => ({
-      ...current,
-      notes: current.notes.filter((_, i) => i !== index),
-    }));
+    formik.setFieldValue(
+      "notes",
+      form.notes.filter((_, i) => i !== index)
+    );
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
+  const confirmSubmit = async () => {
     const allErrors = {
       ...validateStep(0, form),
       ...validateStep(1, form),
       ...validateStep(2, form),
+      ...validateStep(3, form),
     };
 
-    setErrors(allErrors);
+    formik.setErrors(allErrors);
 
     if (Object.keys(allErrors).length > 0) {
-      const firstInvalidStep = [0, 1, 2].find(
+      const firstInvalidStep = [0, 1, 2, 3].find(
         (step) => Object.keys(validateStep(step, form)).length > 0
       );
 
       setActiveStep(firstInvalidStep ?? 0);
+      setReviewOpen(false);
       return;
     }
 
-    // UI prototype only. Connect your create-employee API here.
-    // Use FormData when sending a profile image.
-    console.log("Employee form data:", form);
-
-    setReviewOpen(false);
-    setSuccessMessage(
-      "Form validation successful. Connect the employee creation API to save this record."
-    );
+    await formik.submitForm();
   };
 
   const field = (name) => ({
@@ -360,6 +492,7 @@ export default function AddEmployee() {
     value: form[name],
     onChange: updateField,
     error: errors[name],
+    onBlur: formik.handleBlur,
   });
 
   return (
@@ -432,7 +565,7 @@ export default function AddEmployee() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={formik.handleSubmit} noValidate>
           <div className="space-y-5 p-4 sm:p-6 lg:p-7">
             {activeStep === 0 && (
               <>
@@ -447,20 +580,23 @@ export default function AddEmployee() {
                   <FormField label="Last Name" placeholder="Enter last name"
                     {...field("lastName")} />
 
-                  <FormField label="Father's Name" placeholder="Enter father's name"
-                    {...field("fatherName")} />
-
                   <FormField label="Date of Birth" type="date"
                     max={new Date().toISOString().split("T")[0]}
                     required {...field("dob")} />
 
                   <FormField label="Gender" type="radio" required
-                    options={["Male", "Female", "Other"]}
+                    options={[
+                      { label: "Male", value: "male" },
+                      { label: "Female", value: "female" },
+                      { label: "Other", value: "other" },
+                    ]}
                     {...field("gender")} />
 
                   <FormField label="Profile Image" type="file"
-                    accept="image/*" name="profileImage"
+                    accept="image/jpeg,image/png,image/webp"
+                    name="profileImage"
                     onChange={updateField}
+                    error={errors.profileImage}
                     hint="Optional. Choose an image file." />
                 </FormSection>
 
@@ -485,13 +621,6 @@ export default function AddEmployee() {
                     placeholder="name@example.com" required
                     {...field("personalEmail")} />
 
-                  <FormField label="Official MS Teams ID"
-                    placeholder="Enter Teams ID"
-                    {...field("teamsId")} />
-
-                  <FormField label="LinkedIn Profile" type="url"
-                    placeholder="https://linkedin.com/in/..."
-                    {...field("linkedIn")} />
                 </FormSection>
 
                 <FormSection
@@ -503,10 +632,6 @@ export default function AddEmployee() {
                     placeholder="Enter permanent address"
                     {...field("permanentAddress")} />
 
-                  <FormField label="Temporary Address"
-                    placeholder="Enter temporary address"
-                    {...field("temporaryAddress")} />
-
                   <FormField label="State" type="select"
                     options={stateOptions}
                     placeholder="Select state"
@@ -515,6 +640,28 @@ export default function AddEmployee() {
                   <FormField label="City"
                     placeholder="Enter city"
                     {...field("city")} />
+
+                  <FormField label="PIN Code"
+                    placeholder="Enter PIN code"
+                    {...field("pincode")} />
+                </FormSection>
+
+                <FormSection
+                  title="Emergency Contact"
+                  description="Optional contact details for emergencies."
+                  icon={UserRound}
+                >
+                  <FormField label="Contact Name"
+                    placeholder="Enter contact name"
+                    {...field("emergencyContactName")} />
+
+                  <FormField label="Relationship"
+                    placeholder="e.g. Spouse"
+                    {...field("emergencyContactRelation")} />
+
+                  <FormField label="Contact Number" type="tel"
+                    placeholder="Enter contact number"
+                    {...field("emergencyContactNumber")} />
                 </FormSection>
 
                 <FormSection
@@ -522,14 +669,14 @@ export default function AddEmployee() {
                   description="Assign the employee's role, department and work information."
                   icon={BriefcaseIcon}
                 >
-                  <FormField label="Department" type="select"
-                    options={departmentOptions}
-                    placeholder="Select department" required
+                  <FormField label="Department ID" type="number"
+                    placeholder="Enter department ID" min="1" required
+                    hint="Use the department ID configured by your administrator."
                     {...field("department")} />
 
-                  <FormField label="Designation" type="select"
-                    options={designationOptions}
-                    placeholder="Select designation" required
+                  <FormField label="Designation ID" type="number"
+                    placeholder="Enter designation ID" min="1" required
+                    hint="Use the designation ID configured by your administrator."
                     {...field("designation")} />
 
                   <FormField label="Joining Date" type="date"
@@ -545,8 +692,24 @@ export default function AddEmployee() {
                     required {...field("branch")} />
 
                   <FormField label="Employee Code"
-                    placeholder="e.g. TRG-1005" required
+                    placeholder="e.g. TRG-1005"
                     {...field("employeeCode")} />
+
+                  <FormField label="Role"
+                    placeholder="Enter employee role"
+                    {...field("role")} />
+
+                  <FormField label="Status"
+                    placeholder="Enter employee status"
+                    {...field("status")} />
+
+                  <FormField label="Archive Record" type="select"
+                    options={[
+                      { label: "No", value: "0" },
+                      { label: "Yes", value: "1" },
+                    ]}
+                    placeholder="Do not archive"
+                    {...field("isArchive")} />
 
                   <FormField label="Probation Period" type="select"
                     options={probationOptions}
@@ -560,10 +723,6 @@ export default function AddEmployee() {
                   <FormField label="Card Number"
                     placeholder="Enter card number" required
                     {...field("cardNumber")} />
-
-                  <FormField label="Official GitHub Username"
-                    placeholder="Enter GitHub username"
-                    {...field("githubUsername")} />
 
                   <FormField label="Background Verification"
                     type="select" options={verificationOptions}
@@ -596,7 +755,7 @@ export default function AddEmployee() {
                   <label htmlFor="password"
                     className="mb-2 block text-sm font-medium text-text-secondary"
                   >
-                    Password <span className="text-danger">*</span>
+                    Password
                   </label>
 
                   <div className="relative">
@@ -606,7 +765,7 @@ export default function AddEmployee() {
                       type={showPassword ? "text" : "password"}
                       value={form.password}
                       onChange={updateField}
-                      placeholder="Minimum 8 characters"
+                      placeholder="Optional; minimum 8 characters"
                       autoComplete="new-password"
                       className={`w-full rounded-xl border bg-white
                         px-3.5 py-2.5 pr-11 text-sm text-text-secondary
@@ -636,7 +795,7 @@ export default function AddEmployee() {
                   )}
 
                   <p className="mt-1.5 text-xs text-neutral-400">
-                    Use at least 8 characters.
+                    Optional. If provided, use at least 8 characters.
                   </p>
                 </div>
 
@@ -711,21 +870,41 @@ export default function AddEmployee() {
                   />
                 </FormSection>
 
-                <div className="flex items-start gap-3 rounded-xl
-                  border border-warning-soft bg-warning-soft p-4"
-                >
-                  <Info size={19} className="mt-0.5 shrink-0 text-warning-dark" />
-                  <p className="text-sm leading-6 text-warning-dark">
-                    Bank account and identity information is sensitive.
-                    Restrict access and transmit it securely to your backend.
-                    Avoid storing these values in browser logs or unsecured storage.
-                  </p>
-                </div>
               </>
             )}
 
             {activeStep === 3 && (
               <>
+                <FormSection
+                  title="Education and Experience"
+                  description="Optional education, interview and previous experience details."
+                  icon={CalendarDays}
+                  columns={2}
+                >
+                  <FormField label="College"
+                    placeholder="Enter college or institution"
+                    {...field("college")} />
+
+                  <FormField label="Qualification"
+                    placeholder="Enter qualification"
+                    {...field("qualification")} />
+
+                  <FormField label="Interview Date" type="datetime-local"
+                    {...field("interviewDate")} />
+
+                  <FormField label="Passout Year" type="text"
+                    placeholder="YYYY" max="9999"
+                    {...field("passoutYear")} />
+
+                  <FormField label="Pursuing Year" type="text"
+                    placeholder="YYYY" max="9999"
+                    {...field("pursuingYear")} />
+
+                  <FormField label="Previous Experience" type="textarea"
+                    placeholder="Describe relevant experience"
+                    rows={2} {...field("previousExperience")} />
+                </FormSection>
+
                 <FormSection
                   title="Additional Notes"
                   description="Add internal notes relevant to this employee's record."
@@ -825,16 +1004,6 @@ export default function AddEmployee() {
               </>
             )}
 
-            {/* Submission feedback */}
-            {successMessage && (
-              <div role="status"
-                className="rounded-xl border border-brand-teal-soft
-                  bg-brand-teal-soft p-4 text-sm leading-6 text-brand-teal-dark"
-              >
-                {successMessage}
-              </div>
-            )}
-
             {/* Footer actions */}
             <div className="flex flex-col-reverse justify-between
               gap-3 border-t border-border-light pt-5 sm:flex-row
@@ -847,7 +1016,6 @@ export default function AddEmployee() {
                     navigate("/employees");
                   } else {
                     setActiveStep((step) => step - 1);
-                    setSuccessMessage("");
                   }
                 }}
                 className="inline-flex items-center justify-center
@@ -877,13 +1045,15 @@ export default function AddEmployee() {
                 <button
                   type="button"
                   onClick={() => setReviewOpen(true)}
+                  disabled={creating}
                   className="inline-flex items-center justify-center
                     gap-2 rounded-xl bg-brand-teal px-5 py-3
                     text-sm font-semibold text-white shadow-sm
-                    transition hover:bg-brand-teal-dark"
+                    transition hover:bg-brand-teal-dark disabled:cursor-not-allowed
+                    disabled:opacity-60"
                 >
                   <Save size={17} />
-                  Save Employee
+                  {creating ? "Saving Employee..." : "Save Employee"}
                 </button>
               )}
             </div>
@@ -924,6 +1094,7 @@ export default function AddEmployee() {
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button type="button"
                 onClick={() => setReviewOpen(false)}
+                disabled={creating}
                 className="rounded-xl border border-border-default
                   px-4 py-2.5 text-sm font-semibold
                   text-neutral-600 hover:bg-surface-subtle"
@@ -932,17 +1103,16 @@ export default function AddEmployee() {
               </button>
 
               <button type="button"
-                onClick={(event) => {
-                  setReviewOpen(false);
-                  handleSubmit(event);
-                }}
+                onClick={confirmSubmit}
+                disabled={creating}
                 className="inline-flex items-center
                   justify-center gap-2 rounded-xl
                   bg-brand-teal px-4 py-2.5 text-sm
-                  font-semibold text-white hover:bg-brand-teal-dark"
+                  font-semibold text-white hover:bg-brand-teal-dark
+                  disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Check size={17} />
-                Confirm
+                {creating ? "Saving..." : "Confirm"}
               </button>
             </div>
           </div>

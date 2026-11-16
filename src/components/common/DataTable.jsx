@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Loader2, Search } from "lucide-react";
 import {
   Box,
   Paper,
@@ -12,6 +12,7 @@ import {
   TableSortLabel,
   TextField,
   InputAdornment,
+  Pagination,
 } from "@mui/material";
 
 export default function DataTable({
@@ -19,18 +20,40 @@ export default function DataTable({
   rows = [],
   rowKey = "id",
   rowsPerPage = 10,
-  showSearch = false,
+  search = false,
   searchPlaceholder = "Search...",
+  initialSearchValue = "",
+  searchValue,
+  onSearch,
+  onSearchChange,
+  searchDebounce = 400,
   title = "",
   subtitle = "",
   minWidth = 760,
   actions,
+  loading = false,
+  totalItems,
+  currentPage,
+  onPageChange,
+  pagination,
 }) {
-  const [search, setSearch] = useState("");
+  const [internalSearch, setInternalSearch] = useState(initialSearchValue);
   const [page, setPage] = useState(1);
+  const searchText = searchValue ?? internalSearch;
+  const isServerSearch = typeof onSearch === "function";
+  const onSearchRef = useRef(onSearch);
+  const searchTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
+
+  useEffect(() => {
+    return () => window.clearTimeout(searchTimeoutRef.current);
+  }, []);
 
   const filteredRows = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = isServerSearch ? "" : searchText.trim().toLowerCase();
     if (!query) return rows;
 
     return rows.filter((row) =>
@@ -39,23 +62,51 @@ export default function DataTable({
         return String(value ?? "").toLowerCase().includes(query);
       })
     );
-  }, [columns, rows, search]);
+  }, [columns, isServerSearch, rows, searchText]);
 
-  const pageCount = Math.max(1, Math.ceil(filteredRows.length / rowsPerPage));
-  const currentPage = Math.min(page, pageCount);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const visibleRows = filteredRows.slice(startIndex, startIndex + rowsPerPage);
+  const paginationPage = pagination?.page ?? pagination?.currentPage ?? currentPage;
+  const paginationPerPage = pagination?.perPage ?? pagination?.per_page ?? rowsPerPage;
+  const paginationTotal = pagination?.total ?? pagination?.totalItems ?? totalItems;
+  const paginationPageChange = pagination?.onPageChange ?? onPageChange;
+  const isServerPagination =
+    typeof paginationTotal === "number" &&
+    typeof paginationPage === "number" &&
+    typeof paginationPageChange === "function";
+  const recordCount = isServerPagination ? paginationTotal : filteredRows.length;
+  const activeRowsPerPage = isServerPagination ? paginationPerPage : rowsPerPage;
+  const pageCount = Math.max(1, Math.ceil(recordCount / activeRowsPerPage));
+  const activePage = isServerPagination ? paginationPage : Math.min(page, pageCount);
+  const startIndex = (activePage - 1) * activeRowsPerPage;
+  const visibleRows = filteredRows.slice(startIndex, startIndex + activeRowsPerPage);
+  const displayedRows = isServerPagination ? rows : visibleRows;
+
+  const handleSearchChange = (value) => {
+    if (searchValue === undefined) setInternalSearch(value);
+    onSearchChange?.(value);
+    setPage(1);
+    if (isServerSearch) {
+      window.clearTimeout(searchTimeoutRef.current);
+      searchTimeoutRef.current = window.setTimeout(() => {
+        onSearchRef.current?.(value);
+      }, searchDebounce);
+    }
+  };
+
+  const handlePageChange = (nextPage) => {
+    if (isServerPagination) {
+      paginationPageChange(nextPage);
+      return;
+    }
+    setPage(nextPage);
+  };
 
   return (
     <div className="w-full">
-      {showSearch && (
+      {search && (
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <TextField
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
+            value={searchText}
+            onChange={(event) => handleSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
             size="small"
             sx={{
@@ -162,7 +213,17 @@ export default function DataTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {visibleRows.map((row, rowIndex) => (
+            {loading && (
+              <TableRow>
+                <TableCell colSpan={columns.length} sx={{ borderBottom: 0, py: 8 }}>
+                  <Box className="flex items-center justify-center gap-2 text-sm text-neutral-500">
+                    <Loader2 size={20} className="animate-spin text-brand-teal" />
+                    Loading records...
+                  </Box>
+                </TableCell>
+              </TableRow>
+            )}
+            {!loading && displayedRows.map((row, rowIndex) => (
               <TableRow
                 key={row[rowKey] ?? rowIndex}
                 sx={{
@@ -198,7 +259,7 @@ export default function DataTable({
           </TableBody>
         </Table>
 
-        {visibleRows.length === 0 && (
+        {displayedRows.length === 0 && !loading && (
           <Box sx={{ py: 6, px: 2, textAlign: "center", color: "#64748B", fontSize: 14 }}>
             No records found.
           </Box>
@@ -207,31 +268,20 @@ export default function DataTable({
 
       <div className="mt-4 flex flex-col gap-3 text-sm text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
         <span>
-          {filteredRows.length === 0
+          {recordCount === 0
             ? "Showing 0 records"
-            : `Showing ${startIndex + 1}-${Math.min(startIndex + rowsPerPage, filteredRows.length)} of ${filteredRows.length}`}
+            : `Showing ${startIndex + 1}-${Math.min(startIndex + activeRowsPerPage, recordCount)} of ${recordCount}`}
         </span>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={currentPage === 1}
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-            className="rounded-lg border border-border-default p-2 disabled:opacity-40"
-            aria-label="Previous page"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <span className="min-w-20 text-center font-medium text-brand-navy">Page {currentPage} of {pageCount}</span>
-          <button
-            type="button"
-            disabled={currentPage === pageCount}
-            onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
-            className="rounded-lg border border-border-default p-2 disabled:opacity-40"
-            aria-label="Next page"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
+        <Pagination
+          count={pageCount}
+          page={activePage}
+          onChange={(_, nextPage) => handlePageChange(nextPage)}
+          color="primary"
+          size="small"
+          siblingCount={1}
+          boundaryCount={1}
+          aria-label="Table pagination"
+        />
       </div>
     </div>
   );

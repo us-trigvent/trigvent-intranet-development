@@ -18,8 +18,9 @@ import {
 } from "lucide-react";
 
 import DataTable from "../components/common/DataTable";
+import DeleteConfirmationDialog from "../components/common/DeleteConfirmationDialog";
 
-const releasedEmployees = [
+const initialReleasedEmployees = [
   {
     id: 1,
     name: "Gagandeep Singh",
@@ -127,6 +128,8 @@ const modeStyles = {
 
 export default function ReleasedEmployeeListing() {
   const navigate = useNavigate();
+  const [releasedEmployees, setReleasedEmployees] = useState(initialReleasedEmployees);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [employeeType, setEmployeeType] = useState("All");
 
 
@@ -230,7 +233,7 @@ export default function ReleasedEmployeeListing() {
             type="button"
             title={`Delete ${row.name}`}
             aria-label={`Delete ${row.name}`}
-            onClick={() => window.confirm(`Delete ${row.name}?`)}
+            onClick={() => setDeleteTarget(row)}
             className="rounded-lg border border-border-default bg-white p-2 text-danger shadow-sm transition hover:border-danger-soft hover:bg-danger-soft"
           >
             <Trash2 size={15} />
@@ -394,6 +397,19 @@ export default function ReleasedEmployeeListing() {
           searchPlaceholder="Search employee records..."
         />
       </Paper>
+      <DeleteConfirmationDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          setReleasedEmployees((current) =>
+            current.filter((employee) => employee.id !== deleteTarget.id)
+          );
+          setDeleteTarget(null);
+        }}
+        title="Delete released employee?"
+        itemName={deleteTarget?.name}
+        confirmLabel="Delete record"
+      />
     </main>
   );
 }

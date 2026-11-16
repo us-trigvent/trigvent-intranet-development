@@ -1,5 +1,5 @@
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -9,10 +9,14 @@ import {
   Mail,
   Phone,
   BriefcaseBusiness,
-  Building2,
+  ChevronLeft,
+  ChevronRight,
+  LoaderCircle,
+  ArrowUpDown,
 } from "lucide-react";
 
 import EmployeeCard from "../components/EmployeeCard";
+import axiosInstance from "../api/axiosInstance";
 
 // Sample data: replace with your employee API response.
 const employees = [
@@ -94,29 +98,151 @@ const departments = [
   "Operations",
 ];
 
+const relationName = (value) =>
+  typeof value === "object" && value !== null
+    ? value.name || value.title || ""
+    : value || "";
+
+const field = (item, names) => {
+  for (const name of names) {
+    if (item?.[name] !== undefined && item?.[name] !== null) return item[name];
+  }
+  return undefined;
+};
+
+const normalizeEmployee = (item = {}) => ({
+  ...item,
+  id: field(item, ["id", "employee_id", "employeeId"]),
+  name: field(item, ["name", "full_name", "employee_name"]) || "Unknown employee",
+  email: field(item, ["email", "company_email"]) || "",
+  phone: field(item, ["phone", "phone_number", "mobile", "contact_number"]) || "",
+  avatar: field(item, ["avatar", "profile_photo", "profile_photo_url", "image"]) || "",
+  department: relationName(field(item, ["department", "department_details"])),
+  designation: relationName(field(item, ["designation", "designation_details"])),
+});
+
+const employeeRows = (payload) => {
+  const candidates = [
+    payload?.employees,
+    payload?.data?.employees,
+    payload?.data?.data,
+    payload?.data,
+  ];
+  const rows = candidates.find(Array.isArray) || [];
+  return rows.map(normalizeEmployee);
+};
+
+const normalizeOptions = (value) => {
+  const rows = Array.isArray(value)
+    ? value
+    : Array.isArray(value?.data)
+      ? value.data
+      : [];
+  return rows.map((item) => typeof item === "object"
+    ? { id: item.id ?? item.value, name: item.name || item.title || item.label }
+    : { id: item, name: String(item) })
+    .filter((item) => item.id !== undefined && item.name);
+};
+
+const paginationData = (payload, fallbackPerPage) => {
+  const container = payload?.data && !Array.isArray(payload.data) ? payload.data : {};
+  const source = payload?.pagination || payload?.meta || container?.pagination ||
+    container?.meta || container || {};
+  return {
+    page: Number(source.current_page || source.page || 1),
+    perPage: Number(source.per_page || source.perPage || fallbackPerPage),
+    total: Number(source.total || source.total_rec || source.total_records || 0),
+    lastPage: Number(source.last_page || source.lastPage || 1),
+  };
+};
+
 export default function EmployeeDirectory() {
   const [search, setSearch] = useState("");
-  const [department, setDepartment] = useState("All Departments");
+  const [searchInput, setSearchInput] = useState("");
+  const [department, setDepartment] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [sort, setSort] = useState("name");
+  const [order, setOrder] = useState("asc");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [directoryEmployees, setDirectoryEmployees] = useState(employees);
+  const [departmentOptions, setDepartmentOptions] = useState([]);
+  const [designationOptions, setDesignationOptions] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: 25,
+    total: 0,
+    lastPage: 1,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const filteredEmployees = useMemo(() => {
-    const query = search.trim().toLowerCase();
+  const loadEmployees = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await axiosInstance.get("/directory/employees", {
+        params: {
+          search,
+          department_id: department || undefined,
+          designation_id: designation || undefined,
+          sort,
+          order,
+          page,
+          per_page: perPage,
+        },
+      });
+      const payload = response.data;
+      const container = payload?.data && !Array.isArray(payload.data) ? payload.data : payload;
+      setDirectoryEmployees(employeeRows(payload));
+      setDepartmentOptions(normalizeOptions(
+        container?.departments || container?.filters?.departments
+      ));
+      setDesignationOptions(normalizeOptions(
+        container?.designations || container?.filters?.designations
+      ));
+      setPagination(paginationData(payload, perPage));
+    } catch (requestError) {
+      setDirectoryEmployees([]);
+      setError(requestError.response?.data?.message || "Failed to load employees.");
+    } finally {
+      setLoading(false);
+    }
+  }, [department, designation, order, page, perPage, search, sort]);
 
-    return employees.filter((employee) => {
-      const matchesSearch =
-        !query ||
-        employee.name.toLowerCase().includes(query) ||
-        employee.designation.toLowerCase().includes(query) ||
-        employee.email.toLowerCase().includes(query) ||
-        employee.department.toLowerCase().includes(query);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadEmployees();
+  }, [loadEmployees]);
 
-      const matchesDepartment =
-        department === "All Departments" ||
-        employee.department === department;
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 400);
+    return () => window.clearTimeout(timeoutId);
+  }, [searchInput]);
 
-      return matchesSearch && matchesDepartment;
-    });
-  }, [search, department]);
+  const currentDepartments = useMemo(() => {
+    if (departmentOptions.length) return departmentOptions;
+    const apiFallback = [...new Map(directoryEmployees.map((item) => [
+      item.department,
+      { id: item.department, name: item.department },
+    ])).values()].filter((item) => item.name);
+    const staticFallback = departments
+      .filter((name) => name !== "All Departments")
+      .map((name) => ({ id: name, name }));
+    return apiFallback.length ? apiFallback : staticFallback;
+  }, [departmentOptions, directoryEmployees]);
+
+  const currentDesignations = useMemo(() => {
+    if (designationOptions.length) return designationOptions;
+    return [...new Map(directoryEmployees.map((item) => [
+      item.designation,
+      { id: item.designation, name: item.designation },
+    ])).values()].filter((item) => item.name);
+  }, [designationOptions, directoryEmployees]);
 
   return (
     <div className="min-h-screen bg-page px-4 pb-8
@@ -179,7 +305,7 @@ export default function EmployeeDirectory() {
               Total Employees
             </p>
             <p className="mt-1 text-2xl font-semibold text-brand-navy">
-              {employees.length}
+              {pagination.total || employees.length}
             </p>
           </div>
         </div>
@@ -198,7 +324,7 @@ export default function EmployeeDirectory() {
               Departments
             </p>
             <p className="mt-1 text-2xl font-semibold text-brand-navy">
-              {new Set(employees.map((employee) => employee.department)).size}
+              {currentDepartments.length}
             </p>
           </div>
         </div>
@@ -217,7 +343,7 @@ export default function EmployeeDirectory() {
               Matching Employees
             </p>
             <p className="mt-1 text-2xl font-semibold text-brand-navy">
-              {filteredEmployees.length}
+              {directoryEmployees.length}
             </p>
           </div>
         </div>
@@ -237,8 +363,8 @@ export default function EmployeeDirectory() {
 
             <input
               type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Search by name, designation, email..."
               aria-label="Search employees"
               className="h-12 w-full rounded-xl border
@@ -253,7 +379,10 @@ export default function EmployeeDirectory() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <select
               value={department}
-              onChange={(event) => setDepartment(event.target.value)}
+              onChange={(event) => {
+                setDepartment(event.target.value);
+                setPage(1);
+              }}
               aria-label="Filter by department"
               className="h-12 min-w-0 rounded-xl border
                 border-border-default bg-white px-4 text-sm
@@ -261,19 +390,66 @@ export default function EmployeeDirectory() {
                 focus:border-brand-teal focus:ring-4
                 focus:ring-brand-teal/10 sm:min-w-[210px]"
             >
-              {departments.map((item) => (
-                <option key={item} value={item}>
-                  {item}
+              <option value="">All Departments</option>
+              {currentDepartments.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
                 </option>
               ))}
             </select>
 
-            {(search || department !== "All Departments") && (
+            <select
+              value={designation}
+              onChange={(event) => {
+                setDesignation(event.target.value);
+                setPage(1);
+              }}
+              aria-label="Filter by designation"
+              className="h-12 min-w-0 rounded-xl border border-border-default bg-white px-4 text-sm text-text-secondary outline-none transition focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10 sm:min-w-[210px]"
+            >
+              <option value="">All Designations</option>
+              {currentDesignations.map((item) => (
+                <option key={item.id} value={item.id}>{item.name}</option>
+              ))}
+            </select>
+
+            <select
+              value={sort}
+              onChange={(event) => {
+                setSort(event.target.value);
+                setPage(1);
+              }}
+              aria-label="Sort employees"
+              className="h-12 rounded-xl border border-border-default bg-white px-4 text-sm text-text-secondary outline-none transition focus:border-brand-teal"
+            >
+              <option value="name">Sort by name</option>
+              <option value="designation">Sort by designation</option>
+              <option value="department">Sort by department</option>
+              <option value="email">Sort by email</option>
+            </select>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOrder((current) => current === "asc" ? "desc" : "asc");
+                setPage(1);
+              }}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-border-default px-4 text-sm font-medium text-neutral-600 transition hover:bg-surface-subtle"
+              aria-label={`Sort ${order === "asc" ? "descending" : "ascending"}`}
+            >
+              <ArrowUpDown size={16} />
+              {order === "asc" ? "Ascending" : "Descending"}
+            </button>
+
+            {(searchInput || department || designation) && (
               <button
                 type="button"
                 onClick={() => {
                   setSearch("");
-                  setDepartment("All Departments");
+                  setSearchInput("");
+                  setDepartment("");
+                  setDesignation("");
+                  setPage(1);
                 }}
                 className="inline-flex h-12 items-center
                   justify-center gap-2 rounded-xl
@@ -294,9 +470,9 @@ export default function EmployeeDirectory() {
           <p className="text-sm text-neutral-500">
             Showing{" "}
             <span className="font-semibold text-text-secondary">
-              {filteredEmployees.length}
+              {directoryEmployees.length}
             </span>{" "}
-            of {employees.length} employees
+            of {pagination.total || employees.length} employees
           </p>
 
           <span className="inline-flex items-center gap-2
@@ -309,11 +485,24 @@ export default function EmployeeDirectory() {
       </section>
 
       {/* Employee Cards */}
-      {filteredEmployees.length > 0 ? (
+      {loading ? (
+        <div className="flex min-h-[300px] items-center justify-center rounded-2xl border border-border-default bg-white">
+          <LoaderCircle className="animate-spin text-brand-teal" size={30} />
+          <span className="ml-3 text-sm text-neutral-500">Loading employees...</span>
+        </div>
+      ) : error ? (
+        <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-danger-soft bg-white px-6 text-center">
+          <h2 className="text-lg font-semibold text-brand-navy">Unable to load employees</h2>
+          <p className="mt-2 text-sm text-danger">{error}</p>
+          <button type="button" onClick={loadEmployees} className="mt-5 rounded-xl bg-brand-navy px-4 py-2.5 text-sm font-medium text-white">
+            Try again
+          </button>
+        </div>
+      ) : directoryEmployees.length > 0 ? (
         <div className="grid grid-cols-1 gap-5
           sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
         >
-          {filteredEmployees.map((employee) => (
+          {directoryEmployees.map((employee) => (
             <EmployeeCard
               key={employee.id}
               employee={employee}
@@ -346,7 +535,9 @@ export default function EmployeeDirectory() {
             type="button"
             onClick={() => {
               setSearch("");
-              setDepartment("All Departments");
+              setSearchInput("");
+              setDepartment("");
+              setDesignation("");
             }}
             className="mt-5 rounded-xl bg-brand-navy
               px-4 py-2.5 text-sm font-medium
@@ -354,6 +545,50 @@ export default function EmployeeDirectory() {
           >
             Reset filters
           </button>
+        </div>
+      )}
+
+      {!loading && !error && pagination.total > 0 && (
+        <div className="mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-border-default bg-white px-4 py-3 sm:flex-row">
+          <div className="flex items-center gap-2 text-sm text-neutral-500">
+            <span>Rows per page</span>
+            <select
+              value={perPage}
+              onChange={(event) => {
+                setPerPage(Number(event.target.value));
+                setPage(1);
+              }}
+              className="rounded-lg border border-border-default px-2 py-1.5 text-text-secondary outline-none"
+              aria-label="Rows per page"
+            >
+              {[10, 25, 50].map((size) => (
+                <option key={size} value={size}>{size}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-neutral-500">
+              Page {pagination.page || page} of {Math.max(pagination.lastPage || 1, 1)}
+            </span>
+            <button
+              type="button"
+              disabled={(pagination.page || page) <= 1}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              className="rounded-lg border border-border-default p-2 text-neutral-600 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              type="button"
+              disabled={(pagination.page || page) >= (pagination.lastPage || 1)}
+              onClick={() => setPage((current) => current + 1)}
+              className="rounded-lg border border-border-default p-2 text-neutral-600 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Next page"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
         </div>
       )}
 

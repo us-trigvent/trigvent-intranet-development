@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import EmployeeTable from "../components/employee-form/employee-listing/EmployeeTable";
+import DeleteConfirmationDialog from "../components/common/DeleteConfirmationDialog";
 
 const initialEmployees = [
   {
@@ -419,50 +420,19 @@ export default function EmployeeListing() {
       </section>
 
       {/* Delete confirmation */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center bg-navy-dark/40 p-4 backdrop-blur-sm">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-title"
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
-          >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger-soft text-danger">
-              <UserX size={23} />
-            </div>
-
-            <h2 id="delete-title" className="mt-4 text-lg font-semibold text-brand-navy">
-              Delete employee?
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-neutral-500">
-              Are you sure you want to delete{" "}
-              <span className="font-semibold text-text-secondary">
-                {deleteTarget.name}
-              </span>
-              ? This will remove the record from this UI's local state.
-            </p>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(null)}
-                className="rounded-xl border border-border-default px-4 py-2.5 text-sm font-semibold text-neutral-600 hover:bg-surface-subtle"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white hover:bg-danger-dark"
-              >
-                Delete record
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete employee?"
+        itemName={deleteTarget?.name}
+        description={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget.name}"? This will remove the employee record.`
+            : ""
+        }
+        confirmLabel="Delete record"
+      />
     </div>
   );
 }

@@ -84,7 +84,7 @@ export default function Login() {
 
           <div className="absolute -bottom-24 -right-20 h-80 w-80 rounded-full bg-cyan/15 blur-2xl" />
 
-          <div className="relative z-10 flex h-16 w-full items-center rounded-xl bg-white px-5">
+          <div className="relative z-10 flex h-16 w-full items-center rounded-xl px-5">
             <img
               src={logo}
               alt="Trigvent"

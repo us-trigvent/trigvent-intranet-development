@@ -1,64 +1,168 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, ShieldBan, ShieldCheck, UsersRound } from "lucide-react";
 import DataTable from "../components/common/DataTable";
+import axiosInstance from "../api/axiosInstance";
 
-const blacklistRecords = [
-  {
-    id: 1,
-    referenceId: "BL-2026-001",
-    employee: "Rahul Gupta",
-    entryType: "Employee",
-    email: "rahul@trigvent.com",
-    department: "Engineering",
-    designation: "Software Engineer",
-    date: "29-10-2026",
-    mobileNumber: "9876543210",
-    status: "Active",
-    reason: "Policy violation and repeated misconduct",
-  },
-  {
-    id: 2,
-    referenceId: "BL-2026-002",
-    employee: "Priya Sharma",
-    entryType: "Employee",
-    email: "priya@trigvent.com",
-    department: "Human Resources",
-    designation: "HR Executive",
-    date: "28-10-2026",
-    mobileNumber: "9876543211",
-    status: "Active",
-    reason: "Background verification discrepancy",
-  },
-  {
-    id: 3,
-    referenceId: "BL-2026-003",
-    employee: "Arjun Mehta",
-    entryType: "Intern",
-    email: "arjun@trigvent.com",
-    department: "Design",
-    designation: "Intern",
-    date: "25-10-2026",
-    mobileNumber: "9876543212",
-    status: "Removed",
-    reason: "Record reviewed and blacklist removed",
-  },
-];
+const PER_PAGE = 25;
+
+const readBlacklistRows = (payload) => {
+  const candidates = [
+    payload?.data?.data,
+    payload?.data?.records,
+    payload?.data?.blacklists,
+    payload?.data,
+    payload?.records,
+    payload?.blacklists,
+  ];
+  const rows = candidates.find(Array.isArray) || [];
+
+  return rows.map((item) => ({
+    ...item,
+    id: item.id ?? item.blacklist_id,
+    referenceId: item.reference_id ?? item.referenceId ?? item.reference ?? "—",
+    employee:
+      item.employee_name ??
+      item.name ??
+      item.employee?.name ??
+      item.employee?.full_name ??
+      "—",
+    entryType: item.entry_type ?? item.entryType ?? "—",
+    email: item.email ?? item.employee?.email ?? "—",
+    department:
+      item.department?.name ??
+      item.department_name ??
+      item.department ??
+      "—",
+    designation:
+      item.designation?.name ??
+      item.designation_name ??
+      item.designation ??
+      "—",
+    date: item.date ?? item.blacklisted_on ?? item.created_at ?? "—",
+    status: item.status ?? "—",
+    reason: item.reason ?? "—",
+  }));
+};
+
+const readPagination = (payload) => {
+  const source =
+    payload?.meta ??
+    payload?.pagination ??
+    payload?.data?.meta ??
+    payload?.data?.pagination ??
+    payload?.data ??
+    payload ??
+    {};
+
+  return {
+    page: Number(source.current_page ?? source.page ?? 1),
+    perPage: Number(source.per_page ?? source.perPage ?? PER_PAGE),
+    total: Number(
+      source.total ?? source.total_rec ?? source.total_records ?? 0
+    ),
+  };
+};
+
+const QueryFilter = ({ label, value, placeholder, onApply }) => (
+  <input
+    key={value}
+    type="text"
+    defaultValue={value}
+    placeholder={placeholder}
+    aria-label={label}
+    onBlur={(event) => onApply(event.target.value)}
+    onKeyDown={(event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        onApply(event.currentTarget.value);
+        event.currentTarget.blur();
+      }
+    }}
+    className="rounded-xl border border-border-default bg-white px-3.5 py-3 text-sm text-text-secondary outline-none focus:border-brand-teal"
+  />
+);
 
 export default function BlacklistListing() {
   const navigate = useNavigate();
-  const [entryType, setEntryType] = useState("All");
-  const [status, setStatus] = useState("All");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [records, setRecords] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: PER_PAGE,
+    total: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const filteredRecords = useMemo(
-    () =>
-      blacklistRecords.filter((record) => {
-        const matchesType = entryType === "All" || record.entryType === entryType;
-        const matchesStatus = status === "All" || record.status === status;
-        return matchesType && matchesStatus;
-      }),
-    [entryType, status]
+  const pageValue = Number.parseInt(searchParams.get("page") || "1", 10);
+  const page = Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1;
+  const perPageValue = Number.parseInt(
+    searchParams.get("per_page") || String(PER_PAGE),
+    10
   );
+  const perPage =
+    Number.isInteger(perPageValue) && perPageValue > 0
+      ? perPageValue
+      : PER_PAGE;
+  const keyword = searchParams.get("keyword") || "";
+  const search = searchParams.get("search") || "";
+  const department = searchParams.get("department") || "";
+  const designation = searchParams.get("designation") || "";
+  const entryType = searchParams.get("entry_type") || "";
+
+  const updateQueryParams = useCallback(
+    (updates) => {
+      setSearchParams((currentParams) => {
+        const nextParams = new URLSearchParams(currentParams);
+        Object.entries(updates).forEach(([key, value]) => {
+          if (value === null || value === undefined || value === "") {
+            nextParams.delete(key);
+          } else {
+            nextParams.set(key, String(value));
+          }
+        });
+        return nextParams;
+      });
+    },
+    [setSearchParams]
+  );
+
+  const loadBlacklist = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    const params = { page, per_page: perPage };
+    if (keyword) params.keyword = keyword;
+    if (search) params.search = search;
+    if (department) params.department = department;
+    if (designation) params.designation = designation;
+    if (entryType) params.entry_type = entryType;
+
+    try {
+      const response = await axiosInstance.get("/blacklist", { params });
+      setRecords(readBlacklistRows(response.data));
+      setPagination(readPagination(response.data));
+    } catch (requestError) {
+      setRecords([]);
+      setPagination({ page, perPage, total: 0 });
+      setError(
+        requestError.response?.data?.message ||
+          "Failed to load blacklist records."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [department, designation, entryType, keyword, page, perPage, search]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadBlacklist();
+  }, [loadBlacklist]);
+
+  const updateFilter = (key, value) => {
+    updateQueryParams({ [key]: value.trim(), page: 1 });
+  };
 
   const columns = useMemo(
     () => [
@@ -84,7 +188,7 @@ export default function BlacklistListing() {
         render: (value) => (
           <span
             className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-              value === "Active"
+              String(value).toLowerCase() === "active"
                 ? "bg-danger-soft text-danger-dark"
                 : "bg-success-soft text-success-dark"
             }`}
@@ -106,7 +210,12 @@ export default function BlacklistListing() {
     []
   );
 
-  const activeCount = blacklistRecords.filter((record) => record.status === "Active").length;
+  const activeCount = records.filter(
+    (record) => String(record.status).toLowerCase() === "active"
+  ).length;
+  const removedCount = records.filter(
+    (record) => String(record.status).toLowerCase() === "removed"
+  ).length;
 
   return (
     <main className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
@@ -143,9 +252,9 @@ export default function BlacklistListing() {
 
       <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { label: "Total Records", value: blacklistRecords.length, icon: UsersRound, tone: "bg-info-soft text-info" },
-          { label: "Active Blacklist", value: activeCount, icon: ShieldBan, tone: "bg-danger-soft text-danger" },
-          { label: "Removed", value: blacklistRecords.length - activeCount, icon: ShieldCheck, tone: "bg-success-soft text-success" },
+          { label: "Total Records", value: pagination.total, icon: UsersRound, tone: "bg-info-soft text-info" },
+          { label: "Active on This Page", value: activeCount, icon: ShieldBan, tone: "bg-danger-soft text-danger" },
+          { label: "Removed on This Page", value: removedCount, icon: ShieldCheck, tone: "bg-success-soft text-success" },
         ].map(({ label, value, icon: Icon, tone }) => (
           <div key={label} className="flex items-center justify-between rounded-2xl border border-border-default/80 bg-white p-5 shadow-sm">
             <div>
@@ -162,41 +271,69 @@ export default function BlacklistListing() {
       <section className="overflow-hidden rounded-2xl border border-border-default/80 bg-white shadow-sm">
         <div className="border-b border-border-light px-5 py-5 sm:px-6">
           <h2 className="text-base font-semibold text-brand-navy">Blacklist Records</h2>
-          <p className="mt-1 text-sm text-neutral-500">Search records and filter by entry type or status.</p>
+          <p className="mt-1 text-sm text-neutral-500">
+            Search records and filter by entry type, department, or designation.
+          </p>
 
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <QueryFilter
+              label="Search"
+              value={search}
+              placeholder="Search number or identifier"
+              onApply={(value) => updateFilter("search", value)}
+            />
+            <QueryFilter
+              label="Department ID"
+              value={department}
+              placeholder="Department ID"
+              onApply={(value) => updateFilter("department", value)}
+            />
+            <QueryFilter
+              label="Designation ID"
+              value={designation}
+              placeholder="Designation ID"
+              onApply={(value) => updateFilter("designation", value)}
+            />
             <select
               value={entryType}
-              onChange={(event) => setEntryType(event.target.value)}
+              onChange={(event) =>
+                updateQueryParams({
+                  entry_type: event.target.value,
+                  page: 1,
+                })
+              }
               aria-label="Filter by entry type"
               className="rounded-xl border border-border-default bg-white px-3.5 py-3 text-sm text-text-secondary outline-none focus:border-brand-teal"
             >
-              <option value="All">All Entry Types</option>
-              <option value="Employee">Employee</option>
-              <option value="Intern">Intern</option>
-            </select>
-
-            <select
-              value={status}
-              onChange={(event) => setStatus(event.target.value)}
-              aria-label="Filter by status"
-              className="rounded-xl border border-border-default bg-white px-3.5 py-3 text-sm text-text-secondary outline-none focus:border-brand-teal"
-            >
-              <option value="All">All Statuses</option>
-              <option value="Active">Active</option>
-              <option value="Removed">Removed</option>
+              <option value="">All Entry Types</option>
+              <option value="employee">Employee</option>
+              <option value="intern">Intern</option>
             </select>
           </div>
         </div>
 
         <div className="p-5 sm:p-6">
+          {error && (
+            <p role="alert" className="mb-4 rounded-lg bg-danger-soft px-4 py-3 text-sm text-danger-dark">
+              {error}
+            </p>
+          )}
           <DataTable
             columns={columns}
-            rows={filteredRecords}
+            rows={records}
             rowKey="id"
-            rowsPerPage={10}
-            showSearch
-            searchPlaceholder="Search blacklist records..."
+            search
+            initialSearchValue={keyword}
+            searchPlaceholder="Search by keyword..."
+            onSearch={(value) => updateFilter("keyword", value)}
+            loading={loading}
+            pagination={{
+              page,
+              perPage: pagination.perPage || perPage,
+              total: pagination.total,
+              onPageChange: (nextPage) =>
+                updateQueryParams({ page: nextPage, per_page: perPage }),
+            }}
           />
         </div>
       </section>
