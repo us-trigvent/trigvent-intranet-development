@@ -1,7 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  archiveEmployee,
   createEmployee,
   fetchEmployees,
+  unarchiveEmployee,
   updateEmployeeTrainer,
 } from "../actions/employeeActions";
 
@@ -14,6 +16,8 @@ const employeeSlice = createSlice({
     currentRequestId: null,
     creating: false,
     trainerUpdating: {},
+    archiving: {},
+    unarchiving: {},
     error: null,
     success: null,
   },
@@ -70,6 +74,32 @@ const employeeSlice = createSlice({
       })
       .addCase(updateEmployeeTrainer.rejected, (state, action) => {
         delete state.trainerUpdating[action.meta.arg.employeeId];
+      })
+      .addCase(archiveEmployee.pending, (state, action) => {
+        state.archiving[action.meta.arg.employeeId] = true;
+      })
+      .addCase(archiveEmployee.fulfilled, (state, action) => {
+        const { employeeId } = action.meta.arg;
+        delete state.archiving[employeeId];
+        state.records = state.records.filter(
+          (record) => String(record.id) !== String(employeeId)
+        );
+      })
+      .addCase(archiveEmployee.rejected, (state, action) => {
+        delete state.archiving[action.meta.arg.employeeId];
+      })
+      .addCase(unarchiveEmployee.pending, (state, action) => {
+        state.unarchiving[action.meta.arg.employeeId] = true;
+      })
+      .addCase(unarchiveEmployee.fulfilled, (state, action) => {
+        const { employeeId } = action.meta.arg;
+        delete state.unarchiving[employeeId];
+        state.records = state.records.filter(
+          (record) => String(record.id) !== String(employeeId)
+        );
+      })
+      .addCase(unarchiveEmployee.rejected, (state, action) => {
+        delete state.unarchiving[action.meta.arg.employeeId];
       })
       .addCase(createEmployee.pending, (state) => {
         state.creating = true;

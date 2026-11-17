@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -9,8 +9,11 @@ import {
 } from "lucide-react";
 
 import EmployeeTable from "../components/employee-form/employee-listing/EmployeeTable";
+import ArchiveConfirmationDialog from "../components/employee-form/employee-listing/ArchiveConfirmationDialog";
 import {
+  archiveEmployee,
   fetchEmployees,
+  unarchiveEmployee,
   updateEmployeeTrainer,
 } from "../redux/actions/employeeActions";
 import { useToast } from "../components/ToastProvider";
@@ -68,7 +71,10 @@ export default function EmployeeListing() {
     loading,
     error,
     trainerUpdating,
+    archiving,
+    unarchiving,
   } = useSelector((state) => state.employees);
+  const [pendingEmployeeAction, setPendingEmployeeAction] = useState(null);
   const page = readPositiveInteger(searchParams.get("page"), 1);
   const pageSize = readPositiveInteger(searchParams.get("per_page"), 25);
   const search = searchParams.get("search")?.trim() || "";
@@ -200,6 +206,36 @@ export default function EmployeeListing() {
     }
   };
 
+  const handleEmployeeAction = async () => {
+    if (!pendingEmployeeAction) return;
+
+    const { employee, action } = pendingEmployeeAction;
+    const isUnarchiving = action === "unarchive";
+    const actionThunk = isUnarchiving ? unarchiveEmployee : archiveEmployee;
+    try {
+      const response = await dispatch(
+        actionThunk({ employeeId: employee.id })
+      ).unwrap();
+      showToast({
+        type: "success",
+        title: isUnarchiving ? "Employee unarchived" : "Employee archived",
+        message:
+          response?.message ||
+          `${employee.name} was ${isUnarchiving ? "unarchived" : "archived"}.`,
+      });
+      setPendingEmployeeAction(null);
+      dispatch(fetchEmployees(employeeQuery));
+    } catch (message) {
+      showToast({
+        type: "error",
+        title: isUnarchiving
+          ? "Unable to unarchive employee"
+          : "Unable to archive employee",
+        message: message || "Please try again.",
+      });
+    }
+  };
+
   const handleSort = (field) => {
     if (sortBy === field && sortOrder === "desc") {
       updateQueryParams({
@@ -286,8 +322,29 @@ export default function EmployeeListing() {
           onSort={handleSort}
           onEdit={(employee) => navigate(`/hr/edit-employee/${employee.id}`)}
           onView={(employee) => navigate(`/hr/employee/${employee.id}`)}
+          onArchive={(employee) =>
+            setPendingEmployeeAction({ employee, action: "archive" })
+          }
+          onUnarchive={(employee) =>
+            setPendingEmployeeAction({ employee, action: "unarchive" })
+          }
+          archiving={archiving}
+          unarchiving={unarchiving}
         />
       </section>
+
+      <ArchiveConfirmationDialog
+        open={Boolean(pendingEmployeeAction)}
+        employee={pendingEmployeeAction?.employee}
+        action={pendingEmployeeAction?.action}
+        onClose={() => setPendingEmployeeAction(null)}
+        onConfirm={handleEmployeeAction}
+        loading={Boolean(
+          pendingEmployeeAction?.action === "unarchive"
+            ? unarchiving[pendingEmployeeAction?.employee.id]
+            : archiving[pendingEmployeeAction?.employee.id]
+        )}
+      />
     </div>
   );
 }

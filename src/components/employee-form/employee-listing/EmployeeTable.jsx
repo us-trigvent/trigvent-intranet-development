@@ -1,5 +1,7 @@
 
 import {
+  Archive,
+  ArchiveRestore,
   Pencil,
   Eye,
   Mail,
@@ -7,12 +9,15 @@ import {
 } from "lucide-react";
 
 import EmployeeStatusBadge from "./EmployeeStatusBadge";
+import Button from "../../common/Button";
 import DataTable from "../../common/DataTable";
 
 export default function EmployeeTable({
   employees = [],
   onEdit,
   onView,
+  onArchive,
+  onUnarchive,
   sortBy,
   sortOrder,
   onSort,
@@ -27,6 +32,8 @@ export default function EmployeeTable({
   onFilterChange,
   onToggleTrainer,
   trainerUpdating = {},
+  archiving = {},
+  unarchiving = {},
 }) {
   const sortProps = (field) => ({
     sortable: true,
@@ -63,22 +70,76 @@ export default function EmployeeTable({
           aria-label="Updating trainer status"
         />
       ) : (
-        <label className="inline-flex cursor-pointer items-center justify-center">
-          <input
-            type="checkbox"
-            checked={employee.isTrainer}
-            onChange={(event) => onToggleTrainer?.(employee, event.target.checked)}
-            aria-label={`${employee.isTrainer ? "Remove" : "Set"} ${employee.name} ${employee.isTrainer ? "as" : "as a"} trainer`}
-            className="peer sr-only"
-          />
-          <span className="relative h-6 w-11 rounded-full bg-neutral-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-brand-teal peer-checked:after:translate-x-5 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-teal" />
-        </label>
+      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+  <input
+    type="checkbox"
+    checked={employee.isTrainer}
+    onChange={(event) =>
+      onToggleTrainer?.(employee, event.target.checked)
+    }
+    aria-label={`Set ${employee.name} as trainer`}
+    className="peer sr-only"
+  />
+
+  <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500
+    after:content-[''] after:absolute after:top-0.5 after:left-0.5
+    after:bg-white after:rounded-full after:h-5 after:w-5
+    after:transition-all peer-checked:after:translate-x-5">
+  </div>
+</label>
       )
     )},
     { field: "actions", headerName: "Actions", align: "center", render: (_, employee) => (
       <div className="flex items-center justify-center gap-1.5">
-        <button type="button" onClick={() => onEdit?.(employee)} title="Edit employee" aria-label={`Edit ${employee.name}`} className="rounded-lg border border-border-default bg-white p-2 text-info shadow-sm transition hover:bg-info-soft"><Pencil size={15} /></button>
-        <button type="button" onClick={() => onView?.(employee)} title="View employee" aria-label={`View ${employee.name}`} className="rounded-lg border border-border-default bg-white p-2 text-brand-teal-dark shadow-sm transition hover:bg-brand-teal-soft"><Eye size={15} /></button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => onEdit?.(employee)}
+          title="Edit employee"
+          aria-label={`Edit ${employee.name}`}
+          className="text-info hover:bg-info-soft"
+        >
+          <Pencil size={15} />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => onView?.(employee)}
+          title="View employee"
+          aria-label={`View ${employee.name}`}
+          className="text-brand-teal-dark hover:bg-brand-teal-soft"
+        >
+          <Eye size={15} />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() =>
+            employee.archived
+              ? onUnarchive?.(employee)
+              : onArchive?.(employee)
+          }
+          title={employee.archived ? "Unarchive employee" : "Archive employee"}
+          aria-label={`${employee.archived ? "Unarchive" : "Archive"} ${employee.name}`}
+          disabled={
+            employee.archived
+              ? Boolean(unarchiving[employee.id])
+              : Boolean(archiving[employee.id])
+          }
+          className={
+            employee.archived
+              ? "text-brand-teal-dark hover:bg-brand-teal-soft"
+              : "text-warning-dark hover:bg-warning-soft"
+          }
+        >
+          {archiving[employee.id] || unarchiving[employee.id] ? (
+            <Loader2 size={15} className="animate-spin" />
+          ) : employee.archived ? (
+            <ArchiveRestore size={15} />
+          ) : (
+            <Archive size={15} />
+          )}
+        </Button>
       </div>
     )},
   ];
@@ -86,36 +147,42 @@ export default function EmployeeTable({
   return (
     <>
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <select
-          aria-label="Filter by employee status"
-          value={employeeStatus}
-          onChange={(event) => onFilterChange?.("status", event.target.value)}
-          className="min-w-0 rounded-full border border-border-default bg-white px-3 py-2 text-sm text-brand-navy outline-none focus:border-brand-teal"
-        >
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="archived">Archived</option>
-        </select>
-        <select
-          aria-label="Filter by employee type"
-          value={employeeType}
-          onChange={(event) => onFilterChange?.("employeeType", event.target.value)}
-          className="min-w-0 rounded-full border border-border-default bg-white px-3 py-2 text-sm text-brand-navy outline-none focus:border-brand-teal"
-        >
-          <option value="all">All</option>
-          <option value="employees">Employees</option>
-          <option value="interns">Interns</option>
-        </select>
-        <select
-          aria-label="Filter by trainer status"
-          value={trainerType}
-          onChange={(event) => onFilterChange?.("trainerType", event.target.value)}
-          className="min-w-0 rounded-full border border-border-default bg-white px-3 py-2 text-sm text-brand-navy outline-none focus:border-brand-teal"
-        >
-          <option value="all">All</option>
-          <option value="non-trainers">Non Trainers</option>
-          <option value="trainers">Trainers</option>
-        </select>
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-neutral-600">
+          Employee status
+          <select
+            value={employeeStatus}
+            onChange={(event) => onFilterChange?.("status", event.target.value)}
+            className="min-w-0 rounded-full border border-border-default bg-white px-3 py-2 text-sm font-normal text-brand-navy outline-none focus:border-brand-teal"
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+          </select>
+        </label>
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-neutral-600">
+          Employee type
+          <select
+            value={employeeType}
+            onChange={(event) => onFilterChange?.("employeeType", event.target.value)}
+            className="min-w-0 rounded-full border border-border-default bg-white px-3 py-2 text-sm font-normal text-brand-navy outline-none focus:border-brand-teal"
+          >
+            <option value="all">All</option>
+            <option value="employees">Employees</option>
+            <option value="interns">Interns</option>
+          </select>
+        </label>
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-neutral-600">
+          Trainer status
+          <select
+            value={trainerType}
+            onChange={(event) => onFilterChange?.("trainerType", event.target.value)}
+            className="min-w-0 rounded-full border border-border-default bg-white px-3 py-2 text-sm font-normal text-brand-navy outline-none focus:border-brand-teal"
+          >
+            <option value="all">All</option>
+            <option value="non-trainers">Non Trainers</option>
+            <option value="trainers">Trainers</option>
+          </select>
+        </label>
       </div>
       <DataTable
         columns={tableColumns}

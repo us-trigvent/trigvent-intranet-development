@@ -56,6 +56,56 @@ export const updateEmployeeTrainer = createAsyncThunk(
   }
 );
 
+export const archiveEmployee = createAsyncThunk(
+  "employees/archive",
+  async ({ employeeId }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/employees/${employeeId}/archive`
+      );
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Failed to archive employee."
+        );
+      }
+
+      return { employeeId, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to archive employee."
+      );
+    }
+  }
+);
+
+export const unarchiveEmployee = createAsyncThunk(
+  "employees/unarchive",
+  async ({ employeeId }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/employees/${employeeId}/unarchive`
+      );
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Failed to unarchive employee."
+        );
+      }
+
+      return { employeeId, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to unarchive employee."
+      );
+    }
+  }
+);
+
 export const createEmployee = createAsyncThunk(
   "employees/create",
   async (formData, { rejectWithValue }) => {

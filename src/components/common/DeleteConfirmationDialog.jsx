@@ -1,4 +1,5 @@
 import { Loader2, Trash2, X } from "lucide-react";
+import Button from "./Button";
 
 export default function DeleteConfirmationDialog({
   open,
@@ -24,15 +25,16 @@ export default function DeleteConfirmationDialog({
     >
       <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
         <div className="flex justify-end px-5 pt-4">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
             disabled={loading}
             aria-label="Close delete dialog"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-surface-subtle hover:text-brand-navy disabled:opacity-50"
+            className="text-neutral-400 hover:bg-surface-subtle hover:text-brand-navy"
           >
             <X size={19} />
-          </button>
+          </Button>
         </div>
 
         <div className="px-6 pb-6">
@@ -48,23 +50,22 @@ export default function DeleteConfirmationDialog({
           </p>
 
           <div className="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
+            <Button
+              variant="outline"
               onClick={onClose}
               disabled={loading}
-              className="rounded-xl border border-border-default px-4 py-2.5 text-sm font-semibold text-neutral-600 transition hover:bg-surface-subtle disabled:opacity-50"
             >
               Cancel
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="destructive"
               onClick={onConfirm}
               disabled={loading}
-              className="inline-flex min-w-24 items-center justify-center gap-2 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-danger-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-w-24"
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
               {loading ? "Deleting..." : confirmLabel}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
