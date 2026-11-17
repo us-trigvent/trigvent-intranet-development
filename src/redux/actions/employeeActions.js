@@ -30,6 +30,50 @@ export const fetchEmployees = createAsyncThunk(
   }
 );
 
+export const fetchEmployeeById = createAsyncThunk(
+  "employees/fetchById",
+  async (employeeId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/employees/${employeeId}`);
+      const payload = response.data;
+
+      if (payload?.success === false) {
+        return rejectWithValue(
+          payload.message || "Failed to fetch employee details."
+        );
+      }
+
+      const employee = [
+        payload?.data?.employee,
+        payload?.employee,
+        payload?.data?.data,
+        payload?.data,
+      ].find(
+        (candidate) =>
+          candidate &&
+          typeof candidate === "object" &&
+          !Array.isArray(candidate)
+      );
+
+      if (!employee) {
+        return rejectWithValue(
+          "The employee API returned an invalid response."
+        );
+      }
+
+      return employee;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          (error.response?.status === 404
+            ? "Employee not found."
+            : error.message) ||
+          "Failed to fetch employee details."
+      );
+    }
+  }
+);
+
 export const updateEmployeeTrainer = createAsyncThunk(
   "employees/updateTrainer",
   async ({ employeeId, isTrainer }, { rejectWithValue }) => {

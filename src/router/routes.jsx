@@ -12,6 +12,7 @@ import EmployeeDirectory from "../pages/EmployeeDirectory";
 import AddEmployee from "../pages/AddEmployee";
 import AddIntern from "../pages/AddIntern";
 import EmployeeListing from "../pages/EmployeeListing";
+import EmployeeDetails from "../pages/EmployeeDetails";
 import ReleasedEmployees from "../pages/ReleasedEmployees";
 import AddToBlacklist from "../pages/AddToBlacklist";
 import BlacklistListing from "../pages/BlacklistListing";
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
       {
         path: "hr/employee-listing",
         element: <EmployeeListing />,
+      },
+      {
+        path: "hr/employee/:employeeId",
+        element: <EmployeeDetails />,
       },
       {
         path: "hr/released-employees",

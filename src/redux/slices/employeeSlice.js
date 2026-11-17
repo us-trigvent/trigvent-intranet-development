@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   archiveEmployee,
   createEmployee,
+  fetchEmployeeById,
   fetchEmployees,
   unarchiveEmployee,
   updateEmployeeTrainer,
@@ -14,6 +15,10 @@ const employeeSlice = createSlice({
     pagination: null,
     loading: false,
     currentRequestId: null,
+    employeeDetail: null,
+    employeeDetailLoading: false,
+    employeeDetailError: null,
+    currentEmployeeDetailRequestId: null,
     creating: false,
     trainerUpdating: {},
     archiving: {},
@@ -60,6 +65,35 @@ const employeeSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to fetch employees.";
         state.currentRequestId = null;
+      })
+      .addCase(fetchEmployeeById.pending, (state, action) => {
+        state.employeeDetail = null;
+        state.employeeDetailLoading = true;
+        state.employeeDetailError = null;
+        state.currentEmployeeDetailRequestId = action.meta.requestId;
+      })
+      .addCase(fetchEmployeeById.fulfilled, (state, action) => {
+        if (
+          state.currentEmployeeDetailRequestId !== action.meta.requestId
+        ) {
+          return;
+        }
+
+        state.employeeDetail = action.payload;
+        state.employeeDetailLoading = false;
+        state.currentEmployeeDetailRequestId = null;
+      })
+      .addCase(fetchEmployeeById.rejected, (state, action) => {
+        if (
+          state.currentEmployeeDetailRequestId !== action.meta.requestId
+        ) {
+          return;
+        }
+
+        state.employeeDetailLoading = false;
+        state.employeeDetailError =
+          action.payload || "Failed to fetch employee details.";
+        state.currentEmployeeDetailRequestId = null;
       })
       .addCase(updateEmployeeTrainer.pending, (state, action) => {
         state.trainerUpdating[action.meta.arg.employeeId] = true;
