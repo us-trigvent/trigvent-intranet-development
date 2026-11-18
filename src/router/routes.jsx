@@ -13,6 +13,7 @@ import AddEmployee from "../pages/AddEmployee";
 import AddIntern from "../pages/AddIntern";
 import EmployeeListing from "../pages/EmployeeListing";
 import EmployeeDetails from "../pages/EmployeeDetails";
+import ActivityLogs from "../pages/ActivityLogs";
 import ReleasedEmployees from "../pages/ReleasedEmployees";
 import AddToBlacklist from "../pages/AddToBlacklist";
 import BlacklistListing from "../pages/BlacklistListing";
@@ -171,6 +172,10 @@ export const router = createBrowserRouter([
       {
         path: "administration/manage-roles",
         element: <ManageRoles />,
+      },
+      {
+        path: "administration/activity-logs",
+        element: <ActivityLogs />,
       },
       {
         path: "profile/my-profile",
