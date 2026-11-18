@@ -36,7 +36,7 @@ export default function LeaveListing() {
       render: (value, row) => (
         <div>
           <p className="font-semibold text-brand-navy">{value}</p>
-          <p className="mt-0.5 text-xs text-neutral-500">{row.leaveTypeShort}</p>
+          <p className="mt-0.5 text-xs capitalize text-neutral-500">{row.leaveTypeShort}</p>
         </div>
       ),
     },

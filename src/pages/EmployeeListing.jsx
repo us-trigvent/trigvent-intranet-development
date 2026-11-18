@@ -14,6 +14,7 @@ import {
   archiveEmployee,
   fetchEmployees,
   unarchiveEmployee,
+  updateEmployeeStatus,
   updateEmployeeTrainer,
 } from "../redux/actions/employeeActions";
 import { useToast } from "../components/ToastProvider";
@@ -71,6 +72,7 @@ export default function EmployeeListing() {
     loading,
     error,
     trainerUpdating,
+    statusUpdating,
     archiving,
     unarchiving,
   } = useSelector((state) => state.employees);
@@ -206,6 +208,29 @@ export default function EmployeeListing() {
     }
   };
 
+  const handleStatusChange = async (employee, isActive) => {
+    const status = isActive ? 1 : 0;
+    try {
+      const response = await dispatch(
+        updateEmployeeStatus({ employeeId: employee.id, status })
+      ).unwrap();
+      showToast({
+        type: "success",
+        title: "Employee status updated",
+        message:
+          response?.message ||
+          `${employee.name} is now ${isActive ? "active" : "inactive"}.`,
+      });
+      dispatch(fetchEmployees(employeeQuery));
+    } catch (message) {
+      showToast({
+        type: "error",
+        title: "Unable to update employee status",
+        message: message || "Please try again.",
+      });
+    }
+  };
+
   const handleEmployeeAction = async () => {
     if (!pendingEmployeeAction) return;
 
@@ -316,7 +341,9 @@ export default function EmployeeListing() {
           trainerType={trainerType}
           onFilterChange={handleFilterChange}
           onToggleTrainer={handleTrainerChange}
+          onToggleStatus={handleStatusChange}
           trainerUpdating={trainerUpdating}
+          statusUpdating={statusUpdating}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSort={handleSort}

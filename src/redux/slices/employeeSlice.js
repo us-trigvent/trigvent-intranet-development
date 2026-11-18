@@ -4,7 +4,9 @@ import {
   createEmployee,
   fetchEmployeeById,
   fetchEmployees,
+  fetchNextEmployeeCode,
   unarchiveEmployee,
+  updateEmployeeStatus,
   updateEmployeeTrainer,
 } from "../actions/employeeActions";
 
@@ -20,7 +22,10 @@ const employeeSlice = createSlice({
     employeeDetailError: null,
     currentEmployeeDetailRequestId: null,
     creating: false,
+    nextEmployeeCodeLoading: false,
+    nextEmployeeCodeError: null,
     trainerUpdating: {},
+    statusUpdating: {},
     archiving: {},
     unarchiving: {},
     error: null,
@@ -32,6 +37,9 @@ const employeeSlice = createSlice({
     },
     clearEmployeeSuccess: (state) => {
       state.success = null;
+    },
+    clearNextEmployeeCodeError: (state) => {
+      state.nextEmployeeCodeError = null;
     },
   },
   extraReducers: (builder) => {
@@ -95,6 +103,19 @@ const employeeSlice = createSlice({
           action.payload || "Failed to fetch employee details.";
         state.currentEmployeeDetailRequestId = null;
       })
+      .addCase(fetchNextEmployeeCode.pending, (state) => {
+        state.nextEmployeeCodeLoading = true;
+        state.nextEmployeeCodeError = null;
+      })
+      .addCase(fetchNextEmployeeCode.fulfilled, (state) => {
+        state.nextEmployeeCodeLoading = false;
+        state.nextEmployeeCodeError = null;
+      })
+      .addCase(fetchNextEmployeeCode.rejected, (state, action) => {
+        state.nextEmployeeCodeLoading = false;
+        state.nextEmployeeCodeError =
+          action.payload || "Failed to get the next employee code.";
+      })
       .addCase(updateEmployeeTrainer.pending, (state, action) => {
         state.trainerUpdating[action.meta.arg.employeeId] = true;
       })
@@ -108,6 +129,20 @@ const employeeSlice = createSlice({
       })
       .addCase(updateEmployeeTrainer.rejected, (state, action) => {
         delete state.trainerUpdating[action.meta.arg.employeeId];
+      })
+      .addCase(updateEmployeeStatus.pending, (state, action) => {
+        state.statusUpdating[action.meta.arg.employeeId] = true;
+      })
+      .addCase(updateEmployeeStatus.fulfilled, (state, action) => {
+        const { employeeId, status } = action.meta.arg;
+        delete state.statusUpdating[employeeId];
+        const employee = state.records.find(
+          (record) => String(record.id) === String(employeeId)
+        );
+        if (employee) employee.status = status;
+      })
+      .addCase(updateEmployeeStatus.rejected, (state, action) => {
+        delete state.statusUpdating[action.meta.arg.employeeId];
       })
       .addCase(archiveEmployee.pending, (state, action) => {
         state.archiving[action.meta.arg.employeeId] = true;
@@ -152,7 +187,10 @@ const employeeSlice = createSlice({
   },
 });
 
-export const { clearEmployeeError, clearEmployeeSuccess } =
-  employeeSlice.actions;
+export const {
+  clearEmployeeError,
+  clearEmployeeSuccess,
+  clearNextEmployeeCodeError,
+} = employeeSlice.actions;
 
 export default employeeSlice.reducer;

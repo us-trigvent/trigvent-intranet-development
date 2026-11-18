@@ -75,7 +75,7 @@ export default function EmployeeCard({
           <div className="min-w-0 flex-1 pt-0.5">
             <h3
               className="truncate text-base font-semibold
-              tracking-tight text-brand-navy"
+              tracking-tight text-brand-navy capitalize"
               title={name}
             >
               {name}

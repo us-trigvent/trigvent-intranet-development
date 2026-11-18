@@ -1,19 +1,13 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Box,
-  Button,
-  Chip,
-  MenuItem,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
-import {
+  BriefcaseBusiness,
   Eye,
   Pencil,
   Plus,
   Trash2,
+  UserCheck,
+  UserX,
   Users,
 } from "lucide-react";
 
@@ -112,41 +106,60 @@ const initialReleasedEmployees = [
 ];
 
 const modeStyles = {
-  Release: {
-    bgcolor: "#EAF3FF",
-    color: "#1769F5",
-  },
-  Terminated: {
-    bgcolor: "#FFF0F0",
-    color: "#D14343",
-  },
-  "Lay off": {
-    bgcolor: "#FFF5E5",
-    color: "#A66500",
-  },
+  Release: "bg-info-soft text-info",
+  Terminated: "bg-danger-soft text-danger",
+  "Lay off": "bg-warning-soft text-warning-dark",
 };
+
+function SummaryCard({ title, value, icon: Icon, tone }) {
+  const tones = {
+    navy: "bg-info-soft text-brand-navy",
+    green: "bg-success-soft text-success-dark",
+    red: "bg-danger-soft text-danger",
+    teal: "bg-brand-teal-soft text-brand-teal-dark",
+  };
+
+  return (
+    <div className="rounded-2xl border border-border-default/80 bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-neutral-500">{title}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-brand-navy">
+            {value}
+          </p>
+        </div>
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tones[tone]}`}>
+          <Icon size={21} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ReleasedEmployeeListing() {
   const navigate = useNavigate();
   const [releasedEmployees, setReleasedEmployees] = useState(initialReleasedEmployees);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [employeeType, setEmployeeType] = useState("All");
+  const [employeeType, setEmployeeType] = useState("all");
 
+  const filteredEmployees =
+    employeeType === "all"
+      ? releasedEmployees
+      : releasedEmployees.filter(
+          (employee) => employee.type.toLowerCase() === employeeType
+        );
 
   const columns = [
     {
       field: "serialNumber",
-      headerName: "Sr. No.",
-      cellSx: { width: 75, fontWeight: 600 },
-      render: (_, row) =>
-        releasedEmployees.findIndex(
-          (employee) => employee.id === row.id
-        ) + 1,
+      headerName: "SL",
+      cellSx: { width: 70, color: "#94A3B8" },
+      render: (_, __, index) => index + 1,
     },
     {
       field: "name",
-      headerName: "Employee",
-      render: (value, row) => (
+      headerName: "Name",
+      render: (value, employee) => (
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-teal-soft text-xs font-bold text-brand-teal-dark">
             {value
@@ -158,82 +171,67 @@ export default function ReleasedEmployeeListing() {
               .toUpperCase() || "NA"}
           </div>
           <div>
-            <p className="whitespace-nowrap text-sm font-semibold text-brand-navy">
+            <p className="whitespace-nowrap font-semibold text-brand-navy">
               {value}
             </p>
             <p className="mt-0.5 text-xs text-neutral-400">
-              {row.type || "Team member"}
+              {employee.type || "Team member"}
             </p>
           </div>
         </div>
       ),
     },
-    {
-      field: "employeeCode",
-      headerName: "Employee Code",
-    },
-    {
-      field: "resignationDate",
-      headerName: "Resignation Date",
-    },
-    {
-      field: "serviceEndDate",
-      headerName: "Service End Date",
-    },
+    { field: "employeeCode", headerName: "Employee ID" },
+    { field: "resignationDate", headerName: "Resignation Date" },
+    { field: "serviceEndDate", headerName: "Service End Date" },
     {
       field: "mode",
       headerName: "Mode",
       render: (value) => (
-        <Chip
-          label={value}
-          size="small"
-          sx={{
-            ...modeStyles[value],
-            fontWeight: 600,
-            fontSize: "0.72rem",
-            height: 25,
-            borderRadius: "7px",
-          }}
-        />
+        <span
+          className={`inline-flex whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold ${
+            modeStyles[value] || "bg-surface-muted text-neutral-600"
+          }`}
+        >
+          {value}
+        </span>
       ),
     },
+    { field: "reason", headerName: "Reason" },
+    { field: "remarks", headerName: "Remarks" },
     {
-      field: "reason",
-      headerName: "Reason",
-    },
-    {
-      field: "remarks",
-      headerName: "Remarks",
-    },
-    {
-      field: "action",
-      headerName: "Action",
+      field: "actions",
+      headerName: "Actions",
       align: "center",
-      render: (_, row) => (
+      render: (_, employee) => (
         <div className="flex items-center justify-center gap-1.5">
           <button
             type="button"
-            title={`Edit ${row.name}`}
-            aria-label={`Edit ${row.name}`}
-            onClick={() => navigate(`/hr/released-employees/edit/${row.id}`)}
+            title={`Edit ${employee.name}`}
+            aria-label={`Edit ${employee.name}`}
+            onClick={() =>
+              navigate(`/hr/released-employees/edit/${employee.id}`)
+            }
             className="rounded-lg border border-border-default bg-white p-2 text-info shadow-sm transition hover:border-info-soft hover:bg-info-soft"
           >
             <Pencil size={15} />
           </button>
           <button
             type="button"
-            title={`View ${row.name}`}
-            aria-label={`View ${row.name}`}
-            onClick={() => navigate(`/hr/released-employees/view/${row.id}`)}
+            title={`View ${employee.name}`}
+            aria-label={`View ${employee.name}`}
+            onClick={() =>
+              navigate(`/hr/released-employees/view/${employee.id}`)
+            }
             className="rounded-lg border border-border-default bg-white p-2 text-brand-teal-dark shadow-sm transition hover:border-brand-teal-soft hover:bg-brand-teal-soft"
           >
             <Eye size={15} />
           </button>
           <button
             type="button"
-            title={`Delete ${row.name}`}
-            aria-label={`Delete ${row.name}`}
-            onClick={() => setDeleteTarget(row)}
+            title={`Delete ${employee.name}`}
+            aria-label={`Delete ${employee.name}`}
+            onClick={() => setDeleteTarget(employee)}
             className="rounded-lg border border-border-default bg-white p-2 text-danger shadow-sm transition hover:border-danger-soft hover:bg-danger-soft"
           >
             <Trash2 size={15} />
@@ -243,160 +241,89 @@ export default function ReleasedEmployeeListing() {
     },
   ];
 
+  const summaryCards = [
+    { title: "Total Records", value: releasedEmployees.length, icon: Users, tone: "navy" },
+    {
+      title: "Released",
+      value: releasedEmployees.filter((employee) => employee.mode === "Release").length,
+      icon: UserCheck,
+      tone: "green",
+    },
+    {
+      title: "Terminated",
+      value: releasedEmployees.filter((employee) => employee.mode === "Terminated").length,
+      icon: UserX,
+      tone: "red",
+    },
+    {
+      title: "Lay off",
+      value: releasedEmployees.filter((employee) => employee.mode === "Lay off").length,
+      icon: BriefcaseBusiness,
+      tone: "teal",
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-page px-4 pb-8 pt-20 sm:px-6 lg:px-8 lg:pt-8">
-      {/* Breadcrumb */}
-      <div className="mb-2 flex items-center gap-2 text-xs text-neutral-500">
-        <span>Trigvent</span>
-        <span>/</span>
-        <span>Human Resources</span>
-        <span>/</span>
-        <span className="font-medium text-brand-navy">
-          Released Employees
-        </span>
-      </div>
-
-      {/* Page heading */}
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-info-light sm:text-3xl">
+          <div className="mb-2 text-xs font-medium text-neutral-500">
+            Trigvent / Human Resources / Released Employees
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight text-brand-navy sm:text-3xl">
             Released Employee Listing
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-2 text-sm text-neutral-500">
             Manage employee exits, release records, and service-end details.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start rounded-xl border border-info-soft bg-white px-4 py-2.5 text-sm font-medium text-brand-navy shadow-sm sm:self-auto">
-          <Users size={17} className="text-info" />
-          {releasedEmployees.length} records
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate("/hr/released-employees/add")}
+          className="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-brand-teal px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-teal-dark sm:self-auto"
+        >
+          <Plus size={18} />
+          Add New
+        </button>
       </div>
 
-      {/* Main listing panel */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: { xs: 2, md: 3 },
-          border: "1px solid #E2EAF3",
-          borderRadius: "18px",
-          backgroundColor: "#FFFFFF",
-          boxShadow: "0 4px 16px rgba(32, 61, 97, 0.045)",
-        }}
-      >
-        {/* Table toolbar */}
-        <Box
-          sx={{
-            mb: 2.5,
-            display: "flex",
-            alignItems: { xs: "stretch", sm: "center" },
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 2,
-          }}
-        >
-          <Box>
-            <Typography
-              sx={{
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                color: "#203D61",
-              }}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {summaryCards.map((card) => (
+          <SummaryCard key={card.title} {...card} />
+        ))}
+      </div>
+
+      <section className="overflow-hidden rounded-2xl border border-border-default/80 bg-white p-5 shadow-sm sm:p-6">
+        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-neutral-600">
+            Employee type
+            <select
+              value={employeeType}
+              onChange={(event) => setEmployeeType(event.target.value)}
+              className="min-w-0 rounded-full border border-border-default bg-white px-3 py-2 text-sm font-normal text-brand-navy outline-none focus:border-brand-teal"
             >
-              All Released Records
-            </Typography>
-            <Typography
-              sx={{
-                mt: 0.5,
-                fontSize: "0.82rem",
-                color: "#8492A6",
-              }}
-            >
-              Review and update employee exit information.
-            </Typography>
-          </Box>
+              <option value="all">All employee types</option>
+              <option value="employee">Employees</option>
+              <option value="intern">Interns</option>
+            </select>
+          </label>
+          <p className="self-end pb-2 text-sm text-neutral-500">
+            Showing {filteredEmployees.length} records
+          </p>
+        </div>
 
-          <Button
-            variant="contained"
-            onClick={() =>
-              navigate("/hr/released-employees/add")
-            }
-            startIcon={<Plus size={18} />}
-            sx={{
-              alignSelf: { xs: "stretch", sm: "auto" },
-              borderRadius: "10px",
-              px: 2.5,
-              py: 1.15,
-              textTransform: "none",
-              fontWeight: 600,
-              backgroundColor: "#1769F5",
-              boxShadow: "none",
-              "&:hover": {
-                backgroundColor: "#0F55D4",
-                boxShadow: "0 4px 12px rgba(23, 105, 245, 0.18)",
-              },
-            }}
-          >
-            Add New
-          </Button>
-        </Box>
-
-        {/* Employee type filter */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            mb: 2.5,
-            flexWrap: "wrap",
-          }}
-        >
-          <TextField
-            select
-            size="small"
-            label="Employee Type"
-            value={employeeType}
-            onChange={(event) =>
-              setEmployeeType(event.target.value)
-            }
-            sx={{
-              width: { xs: "100%", sm: 230 },
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "10px",
-                backgroundColor: "#FFFFFF",
-                fontSize: "0.875rem",
-              },
-              "& .MuiInputLabel-root": {
-                fontSize: "0.875rem",
-              },
-            }}
-          >
-            <MenuItem value="All">All Employee Types</MenuItem>
-            <MenuItem value="Employee">Employees</MenuItem>
-            <MenuItem value="Intern">Interns</MenuItem>
-          </TextField>
-
-          <Typography
-            sx={{
-              fontSize: "0.8rem",
-              color: "#8492A6",
-            }}
-          >
-            Showing {releasedEmployees.length} records
-          </Typography>
-        </Box>
-
-        {/* Shared dynamic MUI table */}
         <DataTable
           columns={columns}
-          rows={releasedEmployees}
+          rows={filteredEmployees}
           rowKey="id"
           rowsPerPage={10}
           minWidth={1100}
-          showSearch
-          searchPlaceholder="Search employee records..."
+          search
+          searchPlaceholder="Search released employees..."
         />
-      </Paper>
+      </section>
+
       <DeleteConfirmationDialog
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}

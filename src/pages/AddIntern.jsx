@@ -1,6 +1,8 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Form, Formik } from "formik";
 
 import {
   ContactRound,
@@ -23,6 +25,19 @@ import {
 
 import FormField from "../components/employee-form/FormField";
 import FormSection from "../components/employee-form/FormSection";
+import { useToast } from "../components/ToastProvider";
+import { buildInternFormData } from "../components/employee-form/add-employee/employeePayload";
+import {
+  getInternStepErrors,
+  internStepFields,
+  internValidationSchema,
+} from "../components/employee-form/add-intern/internValidation";
+import { createEmployee } from "../redux/actions/employeeActions";
+import {
+  fetchDepartments,
+  fetchDesignations,
+} from "../redux/actions/lookupActions";
+import { clearDesignations } from "../redux/slices/lookupSlice";
 
 const steps = [
   { label: "Contact Details", icon: ContactRound },
@@ -37,7 +52,7 @@ const initialForm = {
   lastName: "",
   fatherName: "",
   dob: "",
-  gender: "Male",
+  gender: "male",
   profileImage: null,
 
   mobile: "",
@@ -53,7 +68,7 @@ const initialForm = {
   designation: "",
   joiningDate: "",
   teamsId: "",
-  workType: "Internship",
+  workType: "onsite",
   branch: "Mohali",
   employeeCode: "",
 
@@ -77,58 +92,6 @@ const initialForm = {
   notes: [""],
 };
 
-const requiredFields = {
-  0: [
-    ["firstName", "First name"],
-    ["dob", "Date of birth"],
-    ["gender", "Gender"],
-    ["mobile", "Mobile number"],
-    ["alternateNumber", "Alternate number"],
-    ["personalEmail", "Personal email"],
-    ["department", "Department"],
-    ["designation", "Designation"],
-    ["joiningDate", "Joining date"],
-    ["workType", "Work type"],
-    ["branch", "Branch"],
-    ["employeeCode", "Intern code"],
-  ],
-  1: [
-    ["loginEmail", "Login email"],
-    ["password", "Password"],
-  ],
-  2: [
-    ["college", "College"],
-    ["qualification", "Qualification"],
-  ],
-  3: [
-    ["aadhaarNumber", "Aadhaar number"],
-    ["panNumber", "PAN number"],
-  ],
-};
-
-const departmentOptions = [
-  "Engineering",
-  "Design",
-  "Human Resources",
-  "Sales",
-  "Marketing",
-  "Finance",
-  "QA",
-  "Operations",
-];
-
-const designationOptions = [
-  "Frontend Developer Intern",
-  "Backend Developer Intern",
-  "Full Stack Developer Intern",
-  "Python Developer Intern",
-  "UI/UX Design Intern",
-  "Software Development Intern",
-  "Marketing Intern",
-  "HR Intern",
-  "Data Analyst Intern",
-];
-
 const stateOptions = [
   "Haryana",
   "Punjab",
@@ -139,66 +102,6 @@ const stateOptions = [
   "Maharashtra",
   "Karnataka",
 ];
-
-function validateStep(step, form) {
-  const errors = {};
-
-  for (const [key, label] of requiredFields[step] || []) {
-    if (!String(form[key] ?? "").trim()) {
-      errors[key] = `${label} is required.`;
-    }
-  }
-
-  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (step === 0 && form.personalEmail &&
-      !validEmail.test(form.personalEmail)) {
-    errors.personalEmail = "Enter a valid personal email.";
-  }
-
-  if (step === 1 && form.loginEmail &&
-      !validEmail.test(form.loginEmail)) {
-    errors.loginEmail = "Enter a valid login email.";
-  }
-
-  if (step === 1 && form.password && form.password.length < 8) {
-    errors.password = "Password must contain at least 8 characters.";
-  }
-
-  if (step === 2) {
-    const currentYear = new Date().getFullYear();
-
-    if (
-      form.pursuingYear &&
-      (!/^\d{4}$/.test(form.pursuingYear) ||
-        Number(form.pursuingYear) < 1950 ||
-        Number(form.pursuingYear) > currentYear + 10)
-    ) {
-      errors.pursuingYear = "Enter a valid year.";
-    }
-
-    if (
-      form.passoutYear &&
-      (!/^\d{4}$/.test(form.passoutYear) ||
-        Number(form.passoutYear) < 1950 ||
-        Number(form.passoutYear) > currentYear + 10)
-    ) {
-      errors.passoutYear = "Enter a valid year.";
-    }
-  }
-
-  if (step === 3 && form.aadhaarNumber &&
-      !/^\d{12}$/.test(form.aadhaarNumber)) {
-    errors.aadhaarNumber = "Enter a valid 12-digit Aadhaar number.";
-  }
-
-  if (step === 3 && form.panNumber &&
-      !/^[A-Z]{5}\d{4}[A-Z]$/.test(form.panNumber.toUpperCase())) {
-    errors.panNumber = "Enter a valid PAN format.";
-  }
-
-  return errors;
-}
 
 function StepNavigation({ activeStep, onStepClick }) {
   return (
@@ -256,115 +159,129 @@ function StepNavigation({ activeStep, onStepClick }) {
 
 export default function AddIntern() {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
+  const creating = useSelector((state) => state.employees.creating);
+  const { departments, designations } = useSelector((state) => state.lookups);
   const [activeStep, setActiveStep] = useState(0);
-  const [form, setForm] = useState(initialForm);
-  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
+  useEffect(() => {
+    dispatch(fetchDepartments());
+  }, [dispatch]);
 
-  const updateField = (event) => {
-    const { name, value, files } = event.target;
-
-    setForm((current) => ({
-      ...current,
-      [name]: files ? files[0] || null : value,
-    }));
-
-    setErrors((current) => ({
-      ...current,
-      [name]: "",
-    }));
-
-    setFeedback("");
-  };
-
-  const field = (name) => ({
-    name,
-    value: form[name],
-    onChange: updateField,
-    error: errors[name],
-  });
-
-  const goToStep = (nextStep) => {
-    if (nextStep < 0 || nextStep >= steps.length) return;
-
-    if (nextStep > activeStep) {
-      const nextErrors = validateStep(activeStep, form);
-      setErrors(nextErrors);
-
-      if (Object.keys(nextErrors).length) return;
-    }
-
-    setActiveStep(nextStep);
-    setFeedback("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const addNote = () => {
-    setForm((current) => ({
-      ...current,
-      notes: [...current.notes, ""],
-    }));
-  };
-
-  const updateNote = (index, value) => {
-    setForm((current) => ({
-      ...current,
-      notes: current.notes.map((note, i) =>
-        i === index ? value : note
-      ),
-    }));
-  };
-
-  const removeNote = (index) => {
-    setForm((current) => ({
-      ...current,
-      notes: current.notes.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    const allErrors = {
-      ...validateStep(0, form),
-      ...validateStep(1, form),
-      ...validateStep(2, form),
-      ...validateStep(3, form),
-    };
-
-    setErrors(allErrors);
-
-    if (Object.keys(allErrors).length) {
-      const firstInvalidStep = [0, 1, 2, 3].find(
-        (step) => Object.keys(validateStep(step, form)).length > 0
-      );
-
-      setActiveStep(firstInvalidStep ?? 0);
+  const handleSubmit = async (values) => {
+    try {
+      await dispatch(createEmployee(buildInternFormData(values))).unwrap();
       setConfirmOpen(false);
-      return;
+      showToast({
+        type: "success",
+        title: "Intern created",
+        message: "The intern record was created successfully.",
+      });
+      navigate("/hr/employee-listing");
+    } catch (error) {
+      showToast({
+        type: "error",
+        title: "Unable to create intern",
+        message:
+          typeof error === "string"
+            ? error
+            : "Please check the intern details and try again.",
+      });
     }
-
-    // UI prototype: connect the intern creation API here.
-    // Do not log passwords or sensitive identity/bank details.
-    console.log("Intern form ready for submission", {
-      firstName: form.firstName,
-      lastName: form.lastName,
-      employeeCode: form.employeeCode,
-      department: form.department,
-      designation: form.designation,
-      college: form.college,
-    });
-
-    setConfirmOpen(false);
-    setFeedback(
-      "Validation successful. Connect your backend API to save this intern."
-    );
   };
 
   return (
+    <Formik
+      initialValues={initialForm}
+      validationSchema={internValidationSchema}
+      validateOnChange={false}
+      validateOnBlur={false}
+      onSubmit={handleSubmit}
+    >
+      {(formik) => {
+        const form = formik.values;
+        const errors = formik.errors;
+
+        const updateField = (event) => {
+          const { name, value, files } = event.target;
+
+          if (name === "department" && value !== form.department) {
+            formik.setFieldValue("designation", "");
+            dispatch(clearDesignations());
+            if (value) dispatch(fetchDesignations({ departmentId: value }));
+          }
+
+          if (files) {
+            formik.setFieldValue(name, files[0] || null);
+          } else {
+            formik.handleChange(event);
+          }
+          formik.setFieldError(name, undefined);
+        };
+
+        const field = (name) => ({
+          name,
+          value: form[name],
+          onChange: updateField,
+          error: errors[name],
+        });
+
+        const goToStep = async (nextStep) => {
+          if (nextStep < 0 || nextStep >= steps.length) return;
+
+          if (nextStep > activeStep) {
+            const nextErrors = await getInternStepErrors(activeStep, form);
+            const remainingErrors = { ...formik.errors };
+            internStepFields[activeStep].forEach((field) => {
+              delete remainingErrors[field];
+            });
+            formik.setErrors({ ...remainingErrors, ...nextErrors });
+
+            if (Object.keys(nextErrors).length) return;
+          }
+
+          setActiveStep(nextStep);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        const addNote = () => {
+          formik.setFieldValue("notes", [...form.notes, ""]);
+        };
+
+        const updateNote = (index, value) => {
+          formik.setFieldValue(
+            "notes",
+            form.notes.map((note, noteIndex) =>
+              noteIndex === index ? value : note
+            )
+          );
+        };
+
+        const removeNote = (index) => {
+          formik.setFieldValue(
+            "notes",
+            form.notes.filter((_, noteIndex) => noteIndex !== index)
+          );
+        };
+
+        const confirmSubmit = async () => {
+          const allErrors = await formik.validateForm();
+
+          if (Object.keys(allErrors).length) {
+            const firstInvalidStep = internStepFields.findIndex(
+              (fields) => fields.some((field) => allErrors[field])
+            );
+            setActiveStep(firstInvalidStep ?? 0);
+            setConfirmOpen(false);
+            return;
+          }
+
+          await formik.submitForm();
+        };
+
+        return (
     <div className="min-h-screen bg-page px-4 pb-8
       pt-20 sm:px-6 sm:pt-20 lg:px-8 lg:pt-8"
     >
@@ -437,7 +354,7 @@ export default function AddIntern() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <Form noValidate>
           <div className="space-y-5 p-4 sm:p-6 lg:p-7">
             {/* STEP 1: CONTACT DETAILS */}
             {activeStep === 0 && (
@@ -464,7 +381,11 @@ export default function AddIntern() {
                     required {...field("dob")} />
 
                   <FormField label="Gender" type="radio"
-                    options={["Male", "Female", "Other"]}
+                    options={[
+                      { label: "Male", value: "male" },
+                      { label: "Female", value: "female" },
+                      { label: "Other", value: "other" },
+                    ]}
                     required {...field("gender")} />
 
                   <FormField label="Profile Image" type="file"
@@ -505,13 +426,37 @@ export default function AddIntern() {
                     {...field("city")} />
 
                   <FormField label="Department" type="select"
-                    options={departmentOptions}
-                    placeholder="Select department" required
+                    options={departments.records.map((option) => ({
+                      label: option.name,
+                      value: option.id,
+                    }))}
+                    placeholder={
+                      departments.loading ? "Loading departments..." : "Select department"
+                    }
+                    disabled={departments.loading || Boolean(departments.error)}
+                    hint={departments.error || undefined}
+                    required
                     {...field("department")} />
 
                   <FormField label="Designation" type="select"
-                    options={designationOptions}
-                    placeholder="Select designation" required
+                    options={designations.records.map((option) => ({
+                      label: option.name,
+                      value: option.id,
+                    }))}
+                    placeholder={
+                      !form.department
+                        ? "Select a department first"
+                        : designations.loading
+                          ? "Loading designations..."
+                          : "Select designation"
+                    }
+                    disabled={
+                      !form.department ||
+                      designations.loading ||
+                      Boolean(designations.error)
+                    }
+                    hint={designations.error || undefined}
+                    required
                     {...field("designation")} />
 
                   <FormField label="Joining Date" type="date"
@@ -522,7 +467,11 @@ export default function AddIntern() {
                     {...field("teamsId")} />
 
                   <FormField label="Work Type" type="select"
-                    options={["Internship", "Full Time", "Part Time", "Hybrid", "Remote"]}
+                    options={[
+                      { label: "Onsite", value: "onsite" },
+                      { label: "Hybrid", value: "hybrid" },
+                      { label: "Remote", value: "remote" },
+                    ]}
                     required {...field("workType")} />
 
                   <FormField label="Branch" type="select"
@@ -602,9 +551,8 @@ export default function AddIntern() {
                         Account security
                       </p>
                       <p className="mt-1 text-sm leading-6 text-neutral-600">
-                        Create the account securely through your backend.
-                        Passwords should never be stored in plaintext or
-                        included in application logs.
+                        The intern account will be created securely through
+                        the HR system. Passwords are never logged by this form.
                       </p>
                     </div>
                   </div>
@@ -721,7 +669,7 @@ export default function AddIntern() {
                   <p className="text-sm leading-6 text-warning-dark">
                     Only collect identity and banking information when
                     necessary. Restrict access and transmit it securely.
-                    These fields are not sent to a backend by this UI yet.
+                    These details are submitted securely to the HR system.
                   </p>
                 </div>
               </>
@@ -787,8 +735,18 @@ export default function AddIntern() {
                   {[
                     ["Intern Name", `${form.firstName} ${form.lastName}`.trim()],
                     ["Intern Code", form.employeeCode],
-                    ["Department", form.department],
-                    ["Designation", form.designation],
+                    [
+                      "Department",
+                      departments.records.find(
+                        (item) => item.id === form.department
+                      )?.name || form.department,
+                    ],
+                    [
+                      "Designation",
+                      designations.records.find(
+                        (item) => item.id === form.designation
+                      )?.name || form.designation,
+                    ],
                     ["College", form.college],
                     ["Qualification", form.qualification],
                     ["Login Email", form.loginEmail],
@@ -822,15 +780,6 @@ export default function AddIntern() {
               </>
             )}
 
-            {feedback && (
-              <div role="status"
-                className="rounded-xl border border-brand-teal-soft
-                  bg-brand-teal-soft p-4 text-sm leading-6 text-brand-teal-dark"
-              >
-                {feedback}
-              </div>
-            )}
-
             {/* Navigation buttons */}
             <div className="flex flex-col-reverse justify-between gap-3
               border-t border-border-light pt-5 sm:flex-row sm:items-center"
@@ -842,7 +791,6 @@ export default function AddIntern() {
                     navigate("/employees");
                   } else {
                     setActiveStep((step) => step - 1);
-                    setFeedback("");
                   }
                 }}
                 className="inline-flex items-center justify-center gap-2
@@ -868,17 +816,18 @@ export default function AddIntern() {
               ) : (
                 <button type="button"
                   onClick={() => setConfirmOpen(true)}
+                  disabled={creating}
                   className="inline-flex items-center justify-center gap-2
                     rounded-xl bg-brand-teal px-5 py-3 text-sm
                     font-semibold text-white shadow-sm transition hover:bg-brand-teal-dark"
                 >
                   <Save size={17} />
-                  Save Intern Details
+                  {creating ? "Saving Intern..." : "Save Intern Details"}
                 </button>
               )}
             </div>
           </div>
-        </form>
+        </Form>
       </div>
 
       {/* Confirmation modal */}
@@ -922,21 +871,23 @@ export default function AddIntern() {
               </button>
 
               <button type="button"
-                onClick={(event) => {
-                  setConfirmOpen(false);
-                  handleSubmit(event);
-                }}
+                onClick={confirmSubmit}
+                disabled={creating}
                 className="inline-flex items-center justify-center
                   gap-2 rounded-xl bg-brand-teal px-4 py-2.5
-                  text-sm font-semibold text-white hover:bg-brand-teal-dark"
+                  text-sm font-semibold text-white hover:bg-brand-teal-dark
+                  disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Check size={17} />
-                Confirm
+                {creating ? "Saving..." : "Confirm"}
               </button>
             </div>
           </div>
         </div>
       )}
     </div>
+        );
+      }}
+    </Formik>
   );
 }

@@ -31,7 +31,9 @@ export default function EmployeeTable({
   trainerType,
   onFilterChange,
   onToggleTrainer,
+  onToggleStatus,
   trainerUpdating = {},
+  statusUpdating = {},
   archiving = {},
   unarchiving = {},
 }) {
@@ -61,7 +63,35 @@ export default function EmployeeTable({
       { field: "joiningDate", headerName: "Joining Date", ...sortProps("joining_date"), cellSx: { whiteSpace: "nowrap" } },
     { field: "createdAt", headerName: "Created At", ...sortProps("created_at"), cellSx: { whiteSpace: "nowrap" } },
     { field: "workType", headerName: "Work Type" },
-    { field: "active", headerName: "Status", render: (_, employee) => <EmployeeStatusBadge active={employee.active} /> },
+    { field: "active", headerName: "Status", align: "center", render: (_, employee) => (
+      <button
+        type="button"
+        onClick={() => onToggleStatus?.(employee, !employee.active)}
+        disabled={Boolean(statusUpdating[employee.id])}
+        aria-label={`Set ${employee.name} as ${
+          employee.active ? "inactive" : "active"
+        }`}
+        title={`Click to set ${employee.active ? "inactive" : "active"}`}
+        className="rounded-full focus:outline-none focus:ring-2
+          focus:ring-brand-teal focus:ring-offset-2
+          disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {statusUpdating[employee.id] ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full
+            bg-surface-muted px-2.5 py-1 text-xs font-semibold text-neutral-500"
+          >
+            <Loader2
+              className="animate-spin"
+              size={14}
+              aria-hidden="true"
+            />
+            Updating
+          </span>
+        ) : (
+          <EmployeeStatusBadge active={employee.active} />
+        )}
+      </button>
+    )},
     { field: "isTrainer", headerName: "Trainer", align: "center", render: (_, employee) => (
       trainerUpdating[employee.id] ? (
         <Loader2

@@ -124,6 +124,12 @@ const formatValue = (value) => {
   return String(value);
 };
 
+const formatYesNo = (value) => {
+  if (value === 0 || value === "0") return "No";
+  if (value === 1 || value === "1") return "Yes";
+  return formatValue(value);
+};
+
 const initialsFor = (name) =>
   name
     .split(" ")
@@ -152,8 +158,10 @@ function DetailSection({ title, icon: Icon, fields, employee }) {
         {availableFields.map(({ label, value }) => (
           <div key={label} className="min-w-0">
             <dt className="text-xs font-medium text-neutral-500">{label}</dt>
-            <dd className="mt-1 break-words text-sm font-medium text-text-secondary">
-              {formatValue(value)}
+            <dd className="mt-1 break-words text-sm capitalize font-medium text-text-secondary">
+              {label === "Trainer" || label === "Intern"
+                ? formatYesNo(value)
+                : formatValue(value)}
             </dd>
           </div>
         ))}
@@ -272,7 +280,7 @@ export default function EmployeeDetails() {
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-3">
-                    <h2 className="text-xl font-semibold tracking-tight text-brand-navy sm:text-2xl">
+                    <h2 className="text-xl font-semibold capitalize tracking-tight text-brand-navy sm:text-2xl">
                       {employeeName}
                     </h2>
                     <span

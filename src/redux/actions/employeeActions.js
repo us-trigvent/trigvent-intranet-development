@@ -74,6 +74,58 @@ export const fetchEmployeeById = createAsyncThunk(
   }
 );
 
+export const fetchNextEmployeeCode = createAsyncThunk(
+  "employees/fetchNextCode",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/employees/next-code");
+      const payload = response.data;
+
+      if (payload?.success === false) {
+        return rejectWithValue(
+          payload.message || "Failed to get the next employee code."
+        );
+      }
+
+      const containers = [
+        payload,
+        payload?.data,
+        payload?.data?.data,
+      ];
+      const code = containers
+        .flatMap((container) =>
+          typeof container === "object" && container !== null
+            ? [
+                container.employee_code,
+                container.next_employee_code,
+                container.next_code,
+                container.code,
+              ]
+            : [container]
+        )
+        .find(
+          (value) =>
+            (typeof value === "string" || typeof value === "number") &&
+            String(value).trim()
+        );
+
+      if (code === undefined) {
+        return rejectWithValue(
+          "The employee code API returned an invalid response."
+        );
+      }
+
+      return String(code).trim();
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to get the next employee code."
+      );
+    }
+  }
+);
+
 export const updateEmployeeTrainer = createAsyncThunk(
   "employees/updateTrainer",
   async ({ employeeId, isTrainer }, { rejectWithValue }) => {
@@ -95,6 +147,32 @@ export const updateEmployeeTrainer = createAsyncThunk(
         error.response?.data?.message ||
           error.message ||
           "Failed to update trainer status."
+      );
+    }
+  }
+);
+
+export const updateEmployeeStatus = createAsyncThunk(
+  "employees/updateStatus",
+  async ({ employeeId, status }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(
+        `/employees/${employeeId}/status`,
+        { status }
+      );
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Failed to update employee status."
+        );
+      }
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to update employee status."
       );
     }
   }

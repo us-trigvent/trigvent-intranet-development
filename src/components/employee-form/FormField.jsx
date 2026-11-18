@@ -19,6 +19,7 @@ const FormField = forwardRef(function FormField(
     min,
     max,
     hint,
+    action,
   },
   ref
 ) {
@@ -162,10 +163,26 @@ const FormField = forwardRef(function FormField(
             min={min}
             max={max}
             aria-invalid={hasError}
-            className={`${inputClass} ${
-              Icon ? "pl-10" : ""
+            className={`${inputClass} ${Icon ? "pl-10" : ""} ${
+              action ? "pr-24" : ""
             }`}
           />
+        )}
+
+        {action && (
+          <button
+            type="button"
+            onClick={action.onClick}
+            disabled={disabled || action.loading}
+            aria-label={action.ariaLabel || action.label}
+            className="absolute right-2 top-1/2 -translate-y-1/2
+              rounded-lg bg-brand-teal-soft px-2.5 py-1.5
+              text-xs font-semibold text-brand-teal-dark transition
+              hover:bg-brand-teal-light-soft disabled:cursor-not-allowed
+              disabled:opacity-60"
+          >
+            {action.loading ? "Getting..." : action.label}
+          </button>
         )}
       </div>
 
