@@ -38,29 +38,37 @@ const employeeRows = (payload) => {
 
 export const fetchBlacklistEmployees = createAsyncThunk(
   "blacklist/fetchEmployees",
-  async ({ search = "", page = 1, perPage = 100 } = {}, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/lookups/employees", {
-        params: {
-          search,
-          page,
-          per_page: perPage,
-        },
+      const response = await axiosInstance.get("/blacklist", {
+        params,
       });
+
       const payload = response.data;
 
-      if (payload?.success === false) {
-        return rejectWithValue(
-          payload.message || "Failed to fetch employees."
-        );
-      }
+      const records = (Array.isArray(payload?.data) ? payload.data : []).map(
+        (item) => ({
+          ...item,
+          referenceId: item.reference_id ?? "—",
+          employee: item.name ?? "—",
+          department: item.department?.name ?? "—",
+          designation: item.designation?.name ?? "—",
+          date: item.date_formatted ?? item.date ?? "—",
+        })
+      );
 
-      return employeeRows(payload);
+      return {
+        records,
+        pagination: {
+          page: Number(payload?.meta?.current_page ?? 1),
+          perPage: Number(payload?.meta?.per_page ?? PER_PAGE),
+          total: Number(payload?.meta?.total ?? 0),
+        },
+      };
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
-          error.message ||
-          "Failed to fetch employees."
+          "Failed to load blacklist records."
       );
     }
   }
@@ -89,6 +97,64 @@ export const createBlacklistEntry = createAsyncThunk(
           validationMessage ||
           error.message ||
           "Failed to create blacklist entry."
+      );
+    }
+  }
+);
+
+export const deleteBlacklistEntry = createAsyncThunk(
+  "blacklist/deleteEntry",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(`/blacklist/${id}`);
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Failed to delete blacklist entry."
+        );
+      }
+
+      return { id, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to delete blacklist entry."
+      );
+    }
+  }
+);
+export const fetchBlacklistEntry = createAsyncThunk(
+  "blacklist/fetchBlacklistEntry",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/blacklist/${id}`);
+
+      // Handle both { data: {...} } and directly returned objects.
+      return response.data?.data?.data ??
+        response.data?.data ??
+        response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to fetch blacklist entry."
+      );
+    }
+  }
+);
+
+export const updateBlacklistEntry = createAsyncThunk(
+  "blacklist/updateBlacklistEntry",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/blacklist/${id}`, data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to update blacklist entry."
       );
     }
   }

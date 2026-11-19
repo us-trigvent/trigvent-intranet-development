@@ -97,6 +97,10 @@ export const router = createBrowserRouter([
         element: <AddToBlacklist />,
       },
       {
+        path:"/hr/add-to-blacklist/:id",
+        element:<AddToBlacklist />
+      },
+      {
         path: "hr/blacklist-listing",
         element: <BlacklistListing />,
       },
@@ -109,9 +113,9 @@ export const router = createBrowserRouter([
         element: <AddLeave />,
       },
       {
-  path: "/leaves/add-comp-off",
-  element: <AddCompOffCredit />,
-},
+        path: "/leaves/add-comp-off",
+        element: <AddCompOffCredit />,
+      },
       {
         path: "leaves/listing",
         element: <LeaveListing />,
@@ -122,13 +126,13 @@ export const router = createBrowserRouter([
       },
       {
         path: "attendance/add",
-        element: <AddAttendance/>
+        element: <AddAttendance />
       },
       {
         path: "attendance/upload",
-        element: <UploadAttendance/>
+        element: <UploadAttendance />
       },
-     
+
       {
         path: "projects",
         element: <Projects />,
