@@ -15,6 +15,8 @@ import EmployeeListing from "../pages/EmployeeListing";
 import EmployeeDetails from "../pages/EmployeeDetails";
 import ActivityLogs from "../pages/ActivityLogs";
 import ReleasedEmployees from "../pages/ReleasedEmployees";
+import ReleasedEmployeeDetails from "../pages/ReleasedEmployeeDetails";
+import AddReleasedEmployee from "../pages/AddReleasedEmployee";
 import AddToBlacklist from "../pages/AddToBlacklist";
 import BlacklistListing from "../pages/BlacklistListing";
 import LeaveManagement from "../pages/LeaveManagement";
@@ -91,6 +93,18 @@ export const router = createBrowserRouter([
       {
         path: "hr/released-employees",
         element: <ReleasedEmployees />,
+      },
+      {
+        path: "hr/released-employees/view/:relievementId",
+        element: <ReleasedEmployeeDetails />,
+      },
+      {
+        path: "hr/released-employees/add",
+        element: <AddReleasedEmployee />,
+      },
+      {
+        path: "hr/released-employees/edit/:relievementId",
+        element: <AddReleasedEmployee />,
       },
       {
         path: "hr/add-to-blacklist",

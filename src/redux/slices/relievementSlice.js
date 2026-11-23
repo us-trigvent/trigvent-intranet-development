@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchRelievements } from "../actions/relievementActions";
+import {
+  createRelievement,
+  fetchRelievementById,
+  fetchRelievements,
+  updateRelievement,
+} from "../actions/relievementActions";
 
 const relievementSlice = createSlice({
   name: "relievements",
@@ -9,6 +14,12 @@ const relievementSlice = createSlice({
     loading: false,
     currentRequestId: null,
     error: null,
+    detail: null,
+    detailLoading: false,
+    detailError: null,
+    currentDetailRequestId: null,
+    creating: false,
+    updating: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -30,6 +41,47 @@ const relievementSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to fetch released employees.";
         state.currentRequestId = null;
+      })
+      .addCase(fetchRelievementById.pending, (state, action) => {
+        state.detail = null;
+        state.detailLoading = true;
+        state.detailError = null;
+        state.currentDetailRequestId = action.meta.requestId;
+      })
+      .addCase(fetchRelievementById.fulfilled, (state, action) => {
+        if (state.currentDetailRequestId !== action.meta.requestId) return;
+        state.detail = action.payload;
+        state.detailLoading = false;
+        state.currentDetailRequestId = null;
+      })
+      .addCase(fetchRelievementById.rejected, (state, action) => {
+        if (state.currentDetailRequestId !== action.meta.requestId) return;
+        state.detailLoading = false;
+        state.detailError =
+          action.payload || "Failed to fetch released employee details.";
+        state.currentDetailRequestId = null;
+      })
+      .addCase(createRelievement.pending, (state) => {
+        state.creating = true;
+        state.error = null;
+      })
+      .addCase(createRelievement.fulfilled, (state) => {
+        state.creating = false;
+      })
+      .addCase(createRelievement.rejected, (state, action) => {
+        state.creating = false;
+        state.error = action.payload || "Failed to add the released employee.";
+      })
+      .addCase(updateRelievement.pending, (state) => {
+        state.updating = true;
+        state.error = null;
+      })
+      .addCase(updateRelievement.fulfilled, (state) => {
+        state.updating = false;
+      })
+      .addCase(updateRelievement.rejected, (state, action) => {
+        state.updating = false;
+        state.error = action.payload || "Failed to update the released employee.";
       });
   },
 });
