@@ -5,6 +5,7 @@ import employeeReducer from "./slices/employeeSlice";
 import activityLogReducer from "./slices/activityLogSlice";
 import lookupReducer from "./slices/lookupSlice";
 import blacklistReducer from "./slices/blacklistSlice";
+import relievementReducer from "./slices/relievementSlice";
 export const store = configureStore({
     reducer: {
         auth: authReducer,
@@ -13,5 +14,6 @@ export const store = configureStore({
         activityLogs: activityLogReducer,
         lookups: lookupReducer,
         blacklist: blacklistReducer,
+        relievements: relievementReducer,
     }
 })
