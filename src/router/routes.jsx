@@ -44,6 +44,8 @@ import ForgotPassword from "../pages/ForgotPassword";
 import PlaceholderPage from "../pages/PlaceholderPage";
 import Announcements from "../pages/Announcements";
 import Celebrations from "../pages/Celebrations";
+import DeviceListing from "../pages/DeviceListing";
+import DeviceLogsListing from "../pages/DeviceLogsListing";
 
 export const router = createBrowserRouter([
   {
@@ -111,8 +113,8 @@ export const router = createBrowserRouter([
         element: <AddToBlacklist />,
       },
       {
-        path:"/hr/add-to-blacklist/:id",
-        element:<AddToBlacklist />
+        path: "/hr/add-to-blacklist/:id",
+        element: <AddToBlacklist />
       },
       {
         path: "hr/blacklist-listing",
@@ -186,6 +188,14 @@ export const router = createBrowserRouter([
       {
         path: "it/add-device",
         element: <AddDevice />,
+      },
+      {
+        path: "it/device-listing",
+        element: <DeviceListing />,
+      },
+      {
+        path:"/it-management/devices/:deviceId/logs",
+        element:< DeviceLogsListing />
       },
       {
         path: "administration/manage-roles",
