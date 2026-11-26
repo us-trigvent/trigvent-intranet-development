@@ -4,7 +4,9 @@ import {
   createDevice,
   fetchDevices,
   deleteDevice,
-  fetchDeviceLogs
+  fetchDeviceLogs,
+  issueDevice,
+  recoverDevice
 } from "../actions/deviceActions";
 
 const deviceSlice = createSlice({
@@ -14,6 +16,9 @@ const deviceSlice = createSlice({
     records: [],
     pagination: null,
     deleting: {},
+
+    // Issue and Recover API loading state
+    deviceActionLoading: {},
 
     logs: [],
     logsPagination: {
@@ -191,7 +196,34 @@ const deviceSlice = createSlice({
         state.logsLoading = false;
         state.logsError =
           action.payload || "Failed to fetch device logs.";
+      })
+
+      .addCase(issueDevice.pending, (state, action) => {
+        const deviceId = action.meta.arg.deviceId;
+        state.deviceActionLoading[deviceId] = true;
+      })
+      .addCase(issueDevice.fulfilled, (state, action) => {
+        const deviceId = action.payload.deviceId;
+        delete state.deviceActionLoading[deviceId];
+      })
+      .addCase(issueDevice.rejected, (state, action) => {
+        const deviceId = action.meta.arg.deviceId;
+        delete state.deviceActionLoading[deviceId];
+      })
+
+      .addCase(recoverDevice.pending, (state, action) => {
+        const deviceId = action.meta.arg.deviceId;
+        state.deviceActionLoading[deviceId] = true;
+      })
+      .addCase(recoverDevice.fulfilled, (state, action) => {
+        const deviceId = action.payload.deviceId;
+        delete state.deviceActionLoading[deviceId];
+      })
+      .addCase(recoverDevice.rejected, (state, action) => {
+        const deviceId = action.meta.arg.deviceId;
+        delete state.deviceActionLoading[deviceId];
       });
+
 
 
   },

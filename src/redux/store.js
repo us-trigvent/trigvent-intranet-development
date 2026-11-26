@@ -1,12 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
-import announcementReducer from  "./slices/announcementSlice"
+import announcementReducer from "./slices/announcementSlice"
 import deviceReducer from "./slices/deviceSlice";
 import employeeReducer from "./slices/employeeSlice";
 import activityLogReducer from "./slices/activityLogSlice";
 import lookupReducer from "./slices/lookupSlice";
 import blacklistReducer from "./slices/blacklistSlice";
 import relievementReducer from "./slices/relievementSlice";
+import projectReducer from "./slices/projectSlice";
 export const store = configureStore({
     reducer: {
         auth: authReducer,
@@ -17,5 +18,6 @@ export const store = configureStore({
         blacklist: blacklistReducer,
         relievements: relievementReducer,
         devices: deviceReducer,
+        projects: projectReducer,
     }
 })

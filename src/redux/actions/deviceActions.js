@@ -119,3 +119,98 @@ export const fetchDeviceLogs = createAsyncThunk(
     }
   }
 );
+
+
+export const issueDevice = createAsyncThunk(
+  "devices/issue",
+  async ({ deviceId, payload }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/devices/${deviceId}/issue`,
+        payload
+      );
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Failed to issue device."
+        );
+      }
+
+      return { deviceId, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to issue device."
+      );
+    }
+  }
+);
+
+export const recoverDevice = createAsyncThunk(
+  "devices/recover",
+  async ({ deviceId, payload }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/devices/${deviceId}/recover`,
+        payload
+      );
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Failed to recover device."
+        );
+      }
+
+      return { deviceId, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to recover device."
+      );
+    }
+  }
+);
+export const fetchDeviceById = createAsyncThunk(
+  "devices/fetchById",
+  async (deviceId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/devices/${deviceId}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch device details."
+      );
+    }
+  }
+);
+
+export const updateDevice = createAsyncThunk(
+  "devices/update",
+  async ({ deviceId, payload }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(
+        `/devices/${deviceId}`,
+        payload
+      );
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Failed to update device."
+        );
+      }
+
+      return response.data;
+    } catch (error) {
+      const responseData = error.response?.data;
+
+      const validationMessage = responseData?.errors
+        ? Object.values(responseData.errors).flat().join(" ")
+        : "";
+
+      return rejectWithValue(
+        responseData?.message ||
+        validationMessage ||
+        error.message ||
+        "Failed to update device."
+      );
+    }
+  }
+);
